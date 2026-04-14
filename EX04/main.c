@@ -6,7 +6,7 @@
 /*   By: nrobinso <nrobinso@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/04/13 15:41:53 by nrobinso          #+#    #+#             */
-/*   Updated: 2026/04/14 18:55:30 by nrobinso         ###   ########.fr       */
+/*   Updated: 2026/04/14 19:27:45 by nrobinso         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -19,9 +19,9 @@
 
 void ledNumber(uint8_t count) {
     
-    uint8_t bit3 = count &(0b00001000);             // isolate bit 3
-    uint8_t bit4 = bit3 << 1;                       // move it to bit 4 (PB4)
-    uint8_t first_three_bits = count &(0b00000111); // bits 0–2
+    uint8_t bit3 = count &(0b00001000);             // isolate bit 3 of count
+    uint8_t bit4 = bit3 << 1;                       // move it to bit 4 (PB4) 0b1000 -> 0b10000
+    uint8_t first_three_bits = count &(0b00000111); // bits 0–2 of count
     uint8_t val = first_three_bits | bit4;          // combine into LED pattern
     uint8_t cleared_led_bits = PORTB & ~LED_MASK;   // clear LED bits only
     PORTB = cleared_led_bits | val;                 // write new LED state
@@ -40,7 +40,7 @@ int main(void) {
     DDRB |= LED_MASK;
     PORTB &= ~LED_MASK;
     DDRD &= ~BUTTON_MASK;
-    PORTD |= BUTTON_MASK;
+    PORTD |= BUTTON_MASK;  //PORTD - page 72
 
     while (1) {
 

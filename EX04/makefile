@@ -6,7 +6,7 @@
 #    By: nrobinso <nrobinso@student.42.fr>          +#+  +:+       +#+         #
 #                                                 +#+#+#+#+#+   +#+            #
 #    Created: 2026/04/13 13:45:55 by nrobinso          #+#    #+#              #
-#    Updated: 2026/04/14 15:21:39 by nrobinso         ###   ########.fr        #
+#    Updated: 2026/04/14 19:06:40 by nrobinso         ###   ########.fr        #
 #                                                                              #
 # **************************************************************************** #
 
@@ -34,7 +34,7 @@ FLASH_IN_OUT= -U flash:w:$(NAME).hex:i
 
 
 # ------------------------- Rules ---------------------------------------------
-all: hex flash
+all: hex 
 
 hex:
 	$(CC) $(CFLAGS) -DF_CPU=$(F_CPU) -Os -o $(NAME).bin $(NAME).c
