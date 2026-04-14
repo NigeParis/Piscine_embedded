@@ -6,7 +6,7 @@
 #    By: nrobinso <nrobinso@student.42.fr>          +#+  +:+       +#+         #
 #                                                 +#+#+#+#+#+   +#+            #
 #    Created: 2026/04/13 13:45:55 by nrobinso          #+#    #+#              #
-#    Updated: 2026/04/14 15:21:50 by nrobinso         ###   ########.fr        #
+#    Updated: 2026/04/14 18:44:58 by nrobinso         ###   ########.fr        #
 #                                                                              #
 # **************************************************************************** #
 
@@ -17,7 +17,7 @@ NAME=main
 CC=avr-gcc
 FLAGS=-nostdlib -mmcu=atmega328p
 
-# ------------------------- CPU frequency and baud rate -----------------------
+# ------------------------- CPU frequency 16 Mhz and baud rate speed ----------
 F_CPU=16000000UL
 BAUD= -b 115200
 

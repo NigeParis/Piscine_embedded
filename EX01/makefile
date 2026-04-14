@@ -6,7 +6,7 @@
 #    By: nrobinso <nrobinso@student.42.fr>          +#+  +:+       +#+         #
 #                                                 +#+#+#+#+#+   +#+            #
 #    Created: 2026/04/13 13:45:55 by nrobinso          #+#    #+#              #
-#    Updated: 2026/04/14 15:22:10 by nrobinso         ###   ########.fr        #
+#    Updated: 2026/04/14 18:20:57 by nrobinso         ###   ########.fr        #
 #                                                                              #
 # **************************************************************************** #
 
@@ -46,6 +46,5 @@ flash:
 clean:
 	rm -rf $(NAME).bin
 	rm -rf $(NAME).hex
-
-
+	
 .phony: all hex flash clean

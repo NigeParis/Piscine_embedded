@@ -6,7 +6,7 @@
 /*   By: nrobinso <nrobinso@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/04/13 15:41:53 by nrobinso          #+#    #+#             */
-/*   Updated: 2026/04/13 15:47:16 by nrobinso         ###   ########.fr       */
+/*   Updated: 2026/04/14 18:28:55 by nrobinso         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -15,7 +15,7 @@
 int main(void) {
     DDRB |= (1 << PB0);
     while(1)
-        PORTB |= (0b00000001);
+        PORTB = PORTB | (0b00000001) &(0b00010111);
 }
 
 // DDRB "Data Direction Register B is set to OUTPUT 1 / INPUT 0"
@@ -24,4 +24,5 @@ int main(void) {
 // PB1 = 0b00000001 = PIN1
 // DDRB - PB0 -to PC5
 // PORTB - set PBO to high 0b00000001 or (1 << 0b00000000) of (1 << PB0)
+// using a mask &(0b00010111) to stop any other thing being modified
  
