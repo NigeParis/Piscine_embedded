@@ -6,7 +6,7 @@
 #    By: nrobinso <nrobinso@student.42.fr>          +#+  +:+       +#+         #
 #                                                 +#+#+#+#+#+   +#+            #
 #    Created: 2026/04/13 13:45:55 by nrobinso          #+#    #+#              #
-#    Updated: 2026/04/13 17:43:59 by nrobinso         ###   ########.fr        #
+#    Updated: 2026/04/14 15:22:26 by nrobinso         ###   ########.fr        #
 #                                                                              #
 # **************************************************************************** #
 
@@ -23,7 +23,6 @@ BAUD= -b 115200
 
 # ------------------------- Conversion .bin -> .hex ---------------------------
 HEX=avr-objcopy
-HEX_FLAGS= -I binary
 HEX_OUT= ihex
 
 # ------------------------- Flasher -------------------------------------------
@@ -39,7 +38,7 @@ all: hex flash
 
 hex:
 	$(CC) $(CFLAGS) -DF_CPU=$(F_CPU) -O2 -o $(NAME).bin $(NAME).c
-	$(HEX) $(HEX_FLAGS) -O $(HEX_OUT) $(NAME).bin $(NAME).hex
+	$(HEX) -O $(HEX_OUT) $(NAME).bin $(NAME).hex
 	
 flash:
 	$(FLASH) $(PROGRAMMER) $(CARD) $(PORT) $(BAUD) $(FLASH_IN_OUT)
