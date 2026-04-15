@@ -6,14 +6,15 @@
 /*   By: nrobinso <nrobinso@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/04/13 15:41:53 by nrobinso          #+#    #+#             */
-/*   Updated: 2026/04/15 20:44:47 by nrobinso         ###   ########.fr       */
+/*   Updated: 2026/04/15 20:50:48 by nrobinso         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include <avr/io.h>
 
+#define DUTYC 1                                 // Duty cycle 10%
 #define LED2 (1 << PB1)                         // PB1 mask select
-#define PRESCALER 254                           // SYNIC with CS12 p142 ref: DataSheet
+#define PRESCALER 1024                          // SYNIC with CS12 p142 ref: DataSheet
 #define TIME_FREQUENCY ( F_CPU / PRESCALER)     // MAX Value to be stored in OCR1A
                                                 // page 129 on datasheet
                                                 // 16 bits = 65565 max
@@ -25,20 +26,24 @@ int main(void) {
     // PB1 set for OUTPUT - D2 led
     DDRB |= LED2;
 
-    // SET CTC mode - Toggle OC1A/OC1B on Compare Match. page 140 
-    TCCR1A |= (1 << COM1A0); 
+    // SET Fast PWM mode 14 - . page 142 
+    TCCR1A |= ((1 << COM1A1) | (1 << WGM11)); 
+    
+    // SET Fast PWM mode 14 NB - TCCR1B timer counter regiister B setting - page 142
+    TCCR1B |= ((1 << WGM12) | (1 << WGM13));  
+    
+    // Set Clk prescaler to F_CPU/256 = 1MHz/1024 = 1.024 (ms) per tick - page 139 & 143 
+    TCCR1B |= ((1 << CS12) | (1 << CS10));
+    
+    // ICR1 TOP Value 100% on - 1 sec. - page 129 
+    ICR1 = TIME_FREQUENCY;
+    
+    // send to OCR1A - divide by 10 by %
+    OCR1A = (ICR1 / 10);
 
-    // Set CTC on TOP OCR1A NB - TCCR1B timer counter regiister B setting - page 142
-    TCCR1B |= (1 << WGM12);  
-
-    // Set Clk prescaler to F_CPU/256 = 1MHz/256 = 0.256 (ms) per tick - page 139 & 143 
-    TCCR1B |= (1 << CS12) ;
-
-    // set Value to 50%  - 0.5 sec. - page 129// Set value - 50% 
-    OCR1A = (TIME_FREQUENCY / 2); 
-
+    OCR1A = OCR1A * DUTYC;
+    
     while(1) {
-
         
     }
 }
