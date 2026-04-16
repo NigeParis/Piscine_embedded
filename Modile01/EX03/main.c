@@ -6,7 +6,7 @@
 /*   By: nrobinso <nrobinso@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/04/13 15:41:53 by nrobinso          #+#    #+#             */
-/*   Updated: 2026/04/16 12:13:17 by nrobinso         ###   ########.fr       */
+/*   Updated: 2026/04/16 12:15:49 by nrobinso         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -24,50 +24,16 @@
                                                 // 16M/256/1 = 62500 < 65535 OK
 
 
-                                                
-
 void flasher(volatile uint8_t dutycycle) {
     
+    // re-calculate dutycycle 10 to 100%
     OCR1A = ((TIME_FREQUENCY) / 10) * dutycycle;
 }
                         
 
-
-// #define BAUD_RATE  115200
-
-// #define UBRR_VALUE ((F_CPU / (8UL * BAUD_RATE)) - 1)
-
-// uart is 115200 baud rate, 8 bits per word, no parrity and 1 stop bit
-// 115200 8N1
-// void uart_init(void) {
-// 	// Set baud rate
-// 	UBRR0H	= (uint8_t)(UBRR_VALUE >> 8);
-// 	UBRR0L	= (uint8_t)(UBRR_VALUE);
-
-// 	UCSR0A |= _BV(U2X0);
-// 	// Enable transmitter
-// 	UCSR0B	= _BV(TXEN0);
-
-// 	// Set frame format: 8 data bits, no parity, 1 stop bit
-// 	UCSR0C	= _BV(UCSZ01) | _BV(UCSZ00);
-
-// 	// Set TX (PD1) as output
-// 	DDRD   |= _BV(PD1);
-// }
-
-// void uart_tx(char data) {
-// 	// wait for transmit buffer to be empty
-// 	while (!(UCSR0A & _BV(UDRE0)))
-// 		;
-// 	// load data into transmit register
-// 	UDR0 = data;
-// }
-
-
-                                              
 int main(void) {
+    
     volatile uint8_t dutycycle = 1;
-    // uart_init();
 
     DDRB |= LED2_MASK;
     // set PD2 and PD4 HIGH
@@ -87,7 +53,6 @@ int main(void) {
     OCR1A = (TIME_FREQUENCY / 10) * dutycycle;
 
     while(1) {
-        // uart_tx('0' + dutycycle-1);
         
         if ((PIND & (1 << PD4)) == LOW) {
             _delay_ms(100);                             // debounce
