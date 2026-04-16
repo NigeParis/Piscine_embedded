@@ -6,7 +6,7 @@
 /*   By: nrobinso <nrobinso@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/04/13 15:41:53 by nrobinso          #+#    #+#             */
-/*   Updated: 2026/04/16 20:45:04 by nrobinso         ###   ########.fr       */
+/*   Updated: 2026/04/16 21:25:58 by nrobinso         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -32,8 +32,8 @@ void uart_Init(void)
 }
 
 
-#define PRESCALER 256                           // SYNIC with CS12 p142 ref: DataSheet
-#define TIME_FREQUENCY (F_CPU / PRESCALER)     // MAX Value to be stored in OCR1A
+#define PRESCALER 1024                           // SYNIC with CS12 p142 ref: DataSheet
+#define TIME_FREQUENCY (F_CPU / PRESCALER) / 0.5     // MAX Value to be stored in OCR1A
 
 void timer_init() {
 
@@ -44,7 +44,7 @@ void timer_init() {
     TCCR1B |= ((1 << WGM12) | (1 << WGM13));  
     
     // Set Clk prescaler to F_CPU/256 = 16MHz/256 = 62500 per tick - page 139 & 143 
-    TCCR1B |= (1 << CS12);
+    TCCR1B |= ((1 << CS12) | (1 << CS10));
     
     // ICR1 TOP Value 100% on - 1 sec. - page 129 
     ICR1 = TIME_FREQUENCY - 1;
@@ -54,6 +54,7 @@ void timer_init() {
     SREG |= (1 << 7);  // ENABLE Global interupts page 20
     
 }
+
 
 
 void uart_printstr(const char* str) {
