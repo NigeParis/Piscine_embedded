@@ -6,7 +6,7 @@
 /*   By: nrobinso <nrobinso@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/04/13 15:41:53 by nrobinso          #+#    #+#             */
-/*   Updated: 2026/04/16 12:54:58 by nrobinso         ###   ########.fr       */
+/*   Updated: 2026/04/16 13:03:29 by nrobinso         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -57,11 +57,10 @@ int main(void) {
         if ((PIND & (1 << PD4)) == LOW) {
             _delay_ms(100);                             // debounce
             if ((PIND & (1 << PD4)) == LOW) {           // debounce
-                _delay_ms(100);                         // debounce
+                _delay_ms(10);                          // debounce
                 while ((PIND & (1 << PD4)) == LOW) {; }
                 dutycycle--;
-                if (dutycycle < 1)  if ((PIND & (1 << PD4)) == LOW) {           // debounce
-                _delay_ms(100);                       
+                if (dutycycle < 1)                   
                     dutycycle = 1;            
                 flasher(dutycycle);
             }
@@ -70,7 +69,7 @@ int main(void) {
         if ((PIND & (1 << PD2)) == LOW) {
             _delay_ms(100);                             // debounce
             if ((PIND & (1 << PD2)) == LOW) {           // debounce
-                _delay_ms(100);                         // debounce
+                _delay_ms(10);                          // debounce
             
                 while ((PIND & (1 << PD2)) == LOW) {; }
                 dutycycle++;
