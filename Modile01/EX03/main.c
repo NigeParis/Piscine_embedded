@@ -6,26 +6,71 @@
 /*   By: nrobinso <nrobinso@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/04/13 15:41:53 by nrobinso          #+#    #+#             */
-/*   Updated: 2026/04/16 09:25:05 by nrobinso         ###   ########.fr       */
+/*   Updated: 2026/04/16 12:13:17 by nrobinso         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
+#include <util/delay.h>
 #include <avr/io.h>
 
-#define DUTYC 1                                 // Duty cycle 10%
-#define LED2 (1 << PB1)                         // PB1 mask select
+#define LOW 0                                   // PD4 or PD2 pressed
+#define LED2_MASK (1 << PB1)                    // PB1 mask select
 #define PRESCALER 256                           // SYNIC with CS12 p142 ref: DataSheet
-#define TIME_FREQUENCY ( F_CPU / PRESCALER)     // MAX Value to be stored in OCR1A
+#define TIME_FREQUENCY (F_CPU / PRESCALER)     // MAX Value to be stored in OCR1A
                                                 // page 129 on datasheet
                                                 // 16 bits = 65565 max
                                                 // 16M/8/1 = 2000000 > 65535 too much
                                                 // 16M/16/1 = 1000000 > 65535 too much
                                                 // 16M/256/1 = 62500 < 65535 OK
+
+
+                                                
+
+void flasher(volatile uint8_t dutycycle) {
+    
+    OCR1A = ((TIME_FREQUENCY) / 10) * dutycycle;
+}
+                        
+
+
+// #define BAUD_RATE  115200
+
+// #define UBRR_VALUE ((F_CPU / (8UL * BAUD_RATE)) - 1)
+
+// uart is 115200 baud rate, 8 bits per word, no parrity and 1 stop bit
+// 115200 8N1
+// void uart_init(void) {
+// 	// Set baud rate
+// 	UBRR0H	= (uint8_t)(UBRR_VALUE >> 8);
+// 	UBRR0L	= (uint8_t)(UBRR_VALUE);
+
+// 	UCSR0A |= _BV(U2X0);
+// 	// Enable transmitter
+// 	UCSR0B	= _BV(TXEN0);
+
+// 	// Set frame format: 8 data bits, no parity, 1 stop bit
+// 	UCSR0C	= _BV(UCSZ01) | _BV(UCSZ00);
+
+// 	// Set TX (PD1) as output
+// 	DDRD   |= _BV(PD1);
+// }
+
+// void uart_tx(char data) {
+// 	// wait for transmit buffer to be empty
+// 	while (!(UCSR0A & _BV(UDRE0)))
+// 		;
+// 	// load data into transmit register
+// 	UDR0 = data;
+// }
+
+
+                                              
 int main(void) {
+    volatile uint8_t dutycycle = 1;
+    // uart_init();
 
-    // PB1 set for OUTPUT - D2 led
-    DDRB |= LED2;
-
+    DDRB |= LED2_MASK;
+    // set PD2 and PD4 HIGH
     // SET Fast PWM mode 14 - . page 142 
     TCCR1A |= ((1 << COM1A1) | (1 << WGM11)); 
     
@@ -36,15 +81,39 @@ int main(void) {
     TCCR1B |= (1 << CS12);
     
     // ICR1 TOP Value 100% on - 1 sec. - page 129 
-    ICR1 = TIME_FREQUENCY -1;
+    ICR1 = TIME_FREQUENCY - 1;
     
     // send to OCR1A - divide by 10 by %
-    OCR1A = (ICR1 / 10);
+    OCR1A = (TIME_FREQUENCY / 10) * dutycycle;
 
-    OCR1A = OCR1A * DUTYC;
-    
     while(1) {
+        // uart_tx('0' + dutycycle-1);
         
+        if ((PIND & (1 << PD4)) == LOW) {
+            _delay_ms(100);                             // debounce
+            if ((PIND & (1 << PD4)) == LOW) {           // debounce
+                _delay_ms(100);                         // debounce
+                while ((PIND & (1 << PD4)) == LOW) {; }
+                dutycycle--;
+                if (dutycycle < 1)
+                    dutycycle = 1;            
+                flasher(dutycycle);
+            }
+        }
+         
+        if ((PIND & (1 << PD2)) == LOW) {
+            _delay_ms(100);                             // debounce
+            if ((PIND & (1 << PD2)) == LOW) {           // debounce
+                _delay_ms(100);                         // debounce
+            
+                while ((PIND & (1 << PD2)) == LOW) {; }
+                dutycycle++;
+                if (dutycycle > 10)
+                    dutycycle = 10;
+                flasher(dutycycle);
+            }
+        }
+
     }
 }
 
@@ -58,7 +127,7 @@ int main(void) {
 // Timer1, Fast PWM, ICR1 as TOP
 // ===============================
 
-// 1. Timer/Counter1 Overview
+// 1. Timer/Counter1 OverviewBUTTONS_MASK
 // Datasheet Page 108–109
 // - Timer1 is a 16‑bit timer/counter.
 // - Supports multiple waveform generation modes (CTC, Fast PWM, Phase Correct).
