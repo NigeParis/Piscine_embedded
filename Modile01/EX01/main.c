@@ -6,14 +6,14 @@
 /*   By: nrobinso <nrobinso@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/04/13 15:41:53 by nrobinso          #+#    #+#             */
-/*   Updated: 2026/04/15 20:44:47 by nrobinso         ###   ########.fr       */
+/*   Updated: 2026/04/16 08:56:44 by nrobinso         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include <avr/io.h>
 
 #define LED2 (1 << PB1)                         // PB1 mask select
-#define PRESCALER 254                           // SYNIC with CS12 p142 ref: DataSheet
+#define PRESCALER 256                           // SYNIC with CS12 p142 ref: DataSheet
 #define TIME_FREQUENCY ( F_CPU / PRESCALER)     // MAX Value to be stored in OCR1A
                                                 // page 129 on datasheet
                                                 // 16 bits = 65565 max

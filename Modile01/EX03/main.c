@@ -6,23 +6,21 @@
 /*   By: nrobinso <nrobinso@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/04/13 15:41:53 by nrobinso          #+#    #+#             */
-/*   Updated: 2026/04/16 09:22:52 by nrobinso         ###   ########.fr       */
+/*   Updated: 2026/04/16 09:25:05 by nrobinso         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include <avr/io.h>
 
-#define DUTYC 1                                             // Duty cycle 10%
-#define TARGET_HZ 1                                         // target 1 hz
-#define LED2 (1 << PB1)                                     // PB1 mask select
-#define PRESCALER 256                                       // SYNIC with CS12 p142 ref: DataSheet
-#define TIME_FREQUENCY ( F_CPU / PRESCALER / TARGET_HZ)     // MAX Value to be stored in OCR1A
-                                                            // page 129 on datasheet
-                                                            // 16 bits = 65565 max
-                                                            // 16M/8/1 = 2000000 > 65535 too much
-                                                            // 16M/16/1 = 1000000 > 65535 too much
-                                                            // 16M/256/1 = 62500 < 65535 OK
-                                                            // how many timer ticks are needed to produce one period of the target frequency
+#define DUTYC 1                                 // Duty cycle 10%
+#define LED2 (1 << PB1)                         // PB1 mask select
+#define PRESCALER 256                           // SYNIC with CS12 p142 ref: DataSheet
+#define TIME_FREQUENCY ( F_CPU / PRESCALER)     // MAX Value to be stored in OCR1A
+                                                // page 129 on datasheet
+                                                // 16 bits = 65565 max
+                                                // 16M/8/1 = 2000000 > 65535 too much
+                                                // 16M/16/1 = 1000000 > 65535 too much
+                                                // 16M/256/1 = 62500 < 65535 OK
 int main(void) {
 
     // PB1 set for OUTPUT - D2 led
@@ -34,24 +32,24 @@ int main(void) {
     // SET Fast PWM mode 14 NB - TCCR1B timer counter regiister B setting - page 142
     TCCR1B |= ((1 << WGM12) | (1 << WGM13));  
     
-    // Set Clk prescaler to F_CPU/1024 = 16MHz/256 - page 139 & 143 
+    // Set Clk prescaler to F_CPU/256 = 16MHz/256 = 62500 per tick - page 139 & 143 
     TCCR1B |= (1 << CS12);
     
     // ICR1 TOP Value 100% on - 1 sec. - page 129 
-    // 16 M / 256 = 62500
-    // 62500 - 1 to take account of the 0 -> 62499 = 1 hz per tick
-    ICR1 = TIME_FREQUENCY - 1; 
+    ICR1 = TIME_FREQUENCY -1;
     
-    // send to OCR1A - divide by 10 -> 10%
+    // send to OCR1A - divide by 10 by %
     OCR1A = (ICR1 / 10);
 
-    // % multiplier 0 -> 10 -> 0% to 100 %
     OCR1A = OCR1A * DUTYC;
     
     while(1) {
         
     }
 }
+
+
+
 
 
 /// EXTRA NOTES:
