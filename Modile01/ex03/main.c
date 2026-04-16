@@ -6,11 +6,11 @@
 /*   By: nrobinso <nrobinso@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/04/13 15:41:53 by nrobinso          #+#    #+#             */
-/*   Updated: 2026/04/16 12:15:49 by nrobinso         ###   ########.fr       */
+/*   Updated: 2026/04/16 12:54:58 by nrobinso         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
-#include <util/delay.h>
+#include <util/delay.h>                         // delay for the debounce
 #include <avr/io.h>
 
 #define LOW 0                                   // PD4 or PD2 pressed
@@ -60,7 +60,8 @@ int main(void) {
                 _delay_ms(100);                         // debounce
                 while ((PIND & (1 << PD4)) == LOW) {; }
                 dutycycle--;
-                if (dutycycle < 1)
+                if (dutycycle < 1)  if ((PIND & (1 << PD4)) == LOW) {           // debounce
+                _delay_ms(100);                       
                     dutycycle = 1;            
                 flasher(dutycycle);
             }
@@ -81,10 +82,6 @@ int main(void) {
 
     }
 }
-
-
-
-
 
 /// EXTRA NOTES:
 // ===============================
