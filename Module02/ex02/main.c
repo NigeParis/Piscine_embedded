@@ -6,7 +6,7 @@
 /*   By: nrobinso <nrobinso@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/04/13 15:41:53 by nrobinso          #+#    #+#             */
-/*   Updated: 2026/04/17 11:56:24 by nrobinso         ###   ########.fr       */
+/*   Updated: 2026/04/17 13:24:21 by nrobinso         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -15,7 +15,6 @@
 #define BAUDRATE 115200                                 // baud Com Speed
 #define OSC_SPEED_MHZ 16                                // Oscillation Speed page
 #define DBL_SPEED (OSC_SPEED_MHZ/2)                     // p 182 set bit UCSRnA -> U2Xn
-#define TARGET_HZ 0.5                                   // TARGET in HZ 0.5 = 2hz eg 1HZ = 1
 #define MYUBRR (F_CPU / (DBL_SPEED * BAUDRATE) -1)      // p 182   UBRR =  16000000
 
 void uart_Init(void){
@@ -26,6 +25,7 @@ void uart_Init(void){
     UCSR0B = (1 << RXEN0) | (1 << TXEN0);               // Enable transmitter and receiver - page 201
     UCSR0C = (1<<UCSZ01)|(1<<UCSZ00);                   // Set frame format: 8 data bits, 1 stop bit, no parity - page 203 
 }
+
 
 void uart_tx(char c)
 {

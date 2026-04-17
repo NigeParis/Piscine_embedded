@@ -6,12 +6,13 @@
 #    By: nrobinso <nrobinso@student.42.fr>          +#+  +:+       +#+         #
 #                                                 +#+#+#+#+#+   +#+            #
 #    Created: 2026/04/13 13:45:55 by nrobinso          #+#    #+#              #
-#    Updated: 2026/04/16 15:54:01 by nrobinso         ###   ########.fr        #
+#    Updated: 2026/04/17 14:04:16 by nrobinso         ###   ########.fr        #
 #                                                                              #
 # **************************************************************************** #
 
 # ------------------------- project -------------------------------------------
 NAME=main
+TOOLS=utils
 
 # ------------------------- compiler ------------------------------------------
 CC=avr-gcc
@@ -37,7 +38,7 @@ FLASH_IN_OUT= -U flash:w:$(NAME).hex:i
 all: hex flash
 
 hex:
-	$(CC) $(CFLAGS) -DF_CPU=$(F_CPU) -Os -o $(NAME).bin $(NAME).c
+	$(CC) $(CFLAGS) -DF_CPU=$(F_CPU) -Os -o $(NAME).bin $(NAME).c $(TOOLS).c
 	$(HEX) -O $(HEX_OUT) $(NAME).bin $(NAME).hex
 	
 flash:

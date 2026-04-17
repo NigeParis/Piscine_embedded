@@ -6,7 +6,7 @@
 /*   By: nrobinso <nrobinso@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/04/13 15:41:53 by nrobinso          #+#    #+#             */
-/*   Updated: 2026/04/17 10:18:30 by nrobinso         ###   ########.fr       */
+/*   Updated: 2026/04/17 13:22:41 by nrobinso         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -21,8 +21,8 @@
 #define MYUBRR (F_CPU / (DBL_SPEED * BAUDRATE) -1)      // p 182   UBRR =  16000000
                                                         //         -----------------  -1 = 16.36
                                                         //            8 x 115200
-#define PRESCALER 1024                           // SYNIC with CS12 p142 ref: DataSheet
-#define TIME_FREQUENCY (F_CPU / PRESCALER) / TARGET_HZ     // MAX Value to be stored in OCR1A
+#define PRESCALER 1024                                  // SYNIC with CS12 p142 ref: DataSheet
+#define TIME_FREQUENCY (F_CPU / PRESCALER) / TARGET_HZ  // MAX Value to be stored in OCR1A
 
 void uart_Init(void){
     
