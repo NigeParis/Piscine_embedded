@@ -6,7 +6,7 @@
 /*   By: nrobinso <nrobinso@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/04/13 15:41:53 by nrobinso          #+#    #+#             */
-/*   Updated: 2026/04/17 19:03:47 by nrobinso         ###   ########.fr       */
+/*   Updated: 2026/04/17 19:30:44 by nrobinso         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -26,8 +26,10 @@ volatile uint8_t GetNameStringflag = 0;
 volatile uint8_t Stringflag = 0;
 volatile uint8_t Nameflag = 0;
 volatile uint8_t Passflag = 0;
+volatile uint8_t PassTitleflag = 0;
 volatile uint8_t Beginflag = 0;
 volatile uint8_t CheckNameflag = 0;
+volatile uint8_t PassWordflag = 0;
 
 void uart_Init(void) {
     
@@ -160,9 +162,15 @@ int  main( void ) {
                 Nameflag = 1;
             }
             CheckNameflag = 0;
+            PassTitleflag = 1;
+        }
+        
+        if (PassTitleflag == 1 && CheckNameflag == 0 && PassWordflag == 0) {
+            uart_printstr("                  \n\r   password: ");
+            PassTitleflag = 0;
         }
 
-
+        
 
 
         
