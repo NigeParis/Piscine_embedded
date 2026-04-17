@@ -6,7 +6,7 @@
 /*   By: nrobinso <nrobinso@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/04/13 15:41:53 by nrobinso          #+#    #+#             */
-/*   Updated: 2026/04/16 21:25:58 by nrobinso         ###   ########.fr       */
+/*   Updated: 2026/04/17 10:18:30 by nrobinso         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -17,23 +17,22 @@
 #define BAUDRATE 115200                                 // baud Com Speed
 #define OSC_SPEED_MHZ 16                                // Oscillation Speed page
 #define DBL_SPEED (OSC_SPEED_MHZ/2)                     // p 182 set bit UCSRnA -> U2Xn
-
+#define TARGET_HZ 0.5                                   // TARGET in HZ 0.5 = 2hz eg 1HZ = 1
 #define MYUBRR (F_CPU / (DBL_SPEED * BAUDRATE) -1)      // p 182   UBRR =  16000000
                                                         //         -----------------  -1 = 16.36
                                                         //            8 x 115200
-void uart_Init(void)
-{
-    /*Set baud rate */
+#define PRESCALER 1024                           // SYNIC with CS12 p142 ref: DataSheet
+#define TIME_FREQUENCY (F_CPU / PRESCALER) / TARGET_HZ     // MAX Value to be stored in OCR1A
+
+void uart_Init(void){
+    
     UBRR0H = (MYUBRR>>8);                               // Set BAUD RATE REGISTER HIGH side  -  page 204
     UBRR0L = MYUBRR;                                    // Set BAUD RATE REGISTER LOW side  -  page 204
     UCSR0A = (1<<U2X0);                                 // Set Double Speed Mode p182  - p200
     UCSR0B = (1<<TXEN0);                                // Enable transmitter - page 201
-    UCSR0C = (1<<UCSZ01)|(1<<UCSZ00); 
+    UCSR0C = (1<<UCSZ01)|(1<<UCSZ00);                   // Set frame format: 8 data bits, 1 stop bit, no parity - page 203 
 }
 
-
-#define PRESCALER 1024                           // SYNIC with CS12 p142 ref: DataSheet
-#define TIME_FREQUENCY (F_CPU / PRESCALER) / 0.5     // MAX Value to be stored in OCR1A
 
 void timer_init() {
 
@@ -43,7 +42,7 @@ void timer_init() {
     // SET Fast PWM mode 14 NB - TCCR1B timer counter regiister B setting - page 142
     TCCR1B |= ((1 << WGM12) | (1 << WGM13));  
     
-    // Set Clk prescaler to F_CPU/256 = 16MHz/256 = 62500 per tick - page 139 & 143 
+    // Set Clk prescaler to F_CPU/1024 = 16MHz/1024 - page 139 & 143 
     TCCR1B |= ((1 << CS12) | (1 << CS10));
     
     // ICR1 TOP Value 100% on - 1 sec. - page 129 
@@ -54,8 +53,6 @@ void timer_init() {
     SREG |= (1 << 7);  // ENABLE Global interupts page 20
     
 }
-
-
 
 void uart_printstr(const char* str) {
 
@@ -76,7 +73,6 @@ void __vector_11(void)
     uart_printstr("Hello World!\r\n\0");   
 }
 
-
 int  main( void )
 {
     timer_init();
@@ -85,5 +81,3 @@ int  main( void )
     while (1) {}
     
 }
-
-
