@@ -6,7 +6,7 @@
 /*   By: nrobinso <nrobinso@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/04/13 15:41:53 by nrobinso          #+#    #+#             */
-/*   Updated: 2026/04/18 20:39:59 by nrobinso         ###   ########.fr       */
+/*   Updated: 2026/04/18 20:52:35 by nrobinso         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -18,9 +18,9 @@
 #define DBL_SPEED (OSC_SPEED_MHZ/2)                     // p 182 set bit UCSRnA -> U2Xn
 #define MYUBRR (F_CPU / (DBL_SPEED * BAUDRATE) -1)      // p 182   UBRR =  16000000
 #define BUFFER 50
-#define LED2 (1 << PB1)
+#define LED2 (1 << PB1)                                 // D2 - with OCR1A
 #define PRESCALIER 256
-#define TIME_FREQUENCY  (F_CPU / PRESCALIER)
+#define TIME_FREQUENCY  (F_CPU / PRESCALIER)            // 16 Mhz / 256 = 62500
 
 #define NAME "Nigel"
 #define PASSWORD "1234"
@@ -119,8 +119,8 @@ void uart_printchar(volatile char c) {
 
 
 char backspace(char c) {        
+
     if (c == 0x7F) {
-        // c = '\b';     // translate BS → DEL
         if (RX_index > 0) {
             uart_printstr("\b");
             uart_printstr(" ");
@@ -131,8 +131,6 @@ char backspace(char c) {
     }
     return c;
 }
-
-
 
 
 void display_message (char *str) {
@@ -150,7 +148,7 @@ void display_message (char *str) {
 
 void StopBlinkLed(void) {
 
-   TCCR1A &= ~((1 << COM1A1) | (1 << COM1A0));  // Disable OC1A output
+   TCCR1A &= ~(1 << COM1A0);  // Disable OC1A output
     
 }
 
@@ -168,10 +166,8 @@ void __vector_18(void)
     if (Gameflag == 1) {
         if (c == 'y') {
             uart_printstr("\n\rLet's go!");
-            StopBlinkLed();                   // STOP LED D1
         } else {
             uart_printstr("\n\rbye!");
-            StopBlinkLed();                   // STOP LED D1  
         }
         Gameflag = 2;
         return;
@@ -221,12 +217,8 @@ void BlinkLed(void) {
 }
 
 
-
-
 int  main( void ) {
 
-  
-    
     uart_Init();
     uart_Init_interupts();     
 
@@ -310,7 +302,9 @@ int  main( void ) {
 
         if (Gameflag == 1)
             BlinkLed();
-        if (Gameflag == 2)
+        if (Gameflag == 2) {
+            StopBlinkLed();                   // STOP the blinking LED on D2  
             break;
+        }
     }
 }
