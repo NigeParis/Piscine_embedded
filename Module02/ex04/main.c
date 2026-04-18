@@ -6,7 +6,7 @@
 /*   By: nrobinso <nrobinso@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/04/13 15:41:53 by nrobinso          #+#    #+#             */
-/*   Updated: 2026/04/17 19:30:44 by nrobinso         ###   ########.fr       */
+/*   Updated: 2026/04/18 19:48:20 by nrobinso         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -18,18 +18,49 @@
 #define DBL_SPEED (OSC_SPEED_MHZ/2)                     // p 182 set bit UCSRnA -> U2Xn
 #define MYUBRR (F_CPU / (DBL_SPEED * BAUDRATE) -1)      // p 182   UBRR =  16000000
 #define BUFFER 50
-#define NAME "Nige"
+
+#define NAME "Nigel"
+#define PASSWORD "1234"
 
 volatile char buffer[BUFFER];
 volatile uint8_t RX_index = 0;
 volatile uint8_t GetNameStringflag = 0;
 volatile uint8_t Stringflag = 0;
+volatile uint8_t PassStringflag = 0;
 volatile uint8_t Nameflag = 0;
-volatile uint8_t Passflag = 0;
+volatile uint8_t Passflag = 2;
 volatile uint8_t PassTitleflag = 0;
 volatile uint8_t Beginflag = 0;
 volatile uint8_t CheckNameflag = 0;
+volatile uint8_t CheckPassflag = 0;
 volatile uint8_t PassWordflag = 0;
+volatile uint8_t notValidChar = 0;
+volatile uint8_t getPassword = 0;
+volatile uint8_t GetPassStringflag = 0;
+volatile uint8_t Gameflag = 0;
+
+
+void resetFlags(void) {
+
+    RX_index = 0;
+    GetNameStringflag = 0;
+    Stringflag = 0;
+    PassStringflag = 0;
+    Nameflag = 2;
+    Passflag = 2;
+    PassTitleflag = 0;
+    Beginflag = 0;
+    CheckNameflag = 0;
+    CheckPassflag = 0;
+    PassWordflag = 0;
+    notValidChar = 0;
+    getPassword = 0;
+    GetPassStringflag = 0;
+    Gameflag = 0;
+    buffer[0] = '\0';
+}
+
+
 
 void uart_Init(void) {
     
@@ -77,45 +108,94 @@ void uart_printstr(volatile char* str) {
 
 
 
+void uart_printchar(volatile char c) {
+
+        while (!(UCSR0A & (1 << UDRE0))) ;  // Set Flag indicates if ready to tramit data 1 = Buf empty
+        UDR0 = c;
+}
+
+
+
+char backspace(char c) {        
+    if (c == 0x7F) {
+        // c = '\b';     // translate BS → DEL
+        if (RX_index > 0) {
+            uart_printstr("\b");
+            uart_printstr(" ");
+            uart_printstr("\b");
+            RX_index--;
+            return c;
+        }
+    }
+    return c;
+}
+
+
+
+
+void display_message (char *str) {
+    
+     if (Nameflag == 1 && Passflag == 1) {
+         uart_printstr("\n\rHello ");          
+         uart_printstr(str);   
+         uart_printstr("!\n\rShall we play a game?");
+         Gameflag = 1;
+     } else {
+         uart_printstr("\n\rBad combination username/password\n\r\n\r");
+         resetFlags();
+     }
+}
+
+
+
+
 void __vector_18(void) __attribute__((signal));  // USART_RX interupt 19 - page 66
 void __vector_18(void)
 {
-    char c;
+    volatile char c;
+
     c = uart_interupt_rx();
-    // (void)c;
-    buffer[RX_index] = c;
-    
+    if (checkChar(c))
+        return;
+    if (notPrintable(c))
+        return;
+    if (Gameflag == 1) {
+        if (c == 'y')
+            uart_printstr("\n\rLet's go!");
+        else
+            uart_printstr("\n\rbye!");
+        Gameflag = 2;
+        return;
+    }    
+    if (RX_index < 11) {
+        c = backspace(c);
+
+        
+        if (c != 0x7F && RX_index < 11) {
+            buffer[RX_index] = c;
+        } else { 
+            return;
+        }
+    }
     if (c == '\n'|| c == '\r') {
         buffer[RX_index] = '\0';
         RX_index = 0;
         Stringflag = 1;
-        
+        if (PassTitleflag == 2)
+            PassStringflag = 1;       
     }
     else {
-        uart_interupt_tx(buffer[RX_index]); 
-        RX_index++;// receive data
-
+        if (RX_index < 11){       
+            if (PassTitleflag != 2)
+                uart_interupt_tx(buffer[RX_index]); 
+            else 
+                uart_interupt_tx('*'); 
+            RX_index++;// receive data
+        } else {
+            c = 0x7F;
+            backspace(c);
+        }
     }
-
-    
-}
-
-
-bool ft_strcmp(char *str, char *name) {
-
-    int i = 0;
-    
-    if (str[0] == '\0') 
-        return (1);
-
-    while (str[i] != '\0') {
-
-        if (str[i] != name[i])
-            return (1);
-        i++;
-    } 
-    
-    return (0);
 }
 
 
@@ -127,14 +207,16 @@ int  main( void ) {
     uart_Init_interupts();     
 
     char string[BUFFER];
+    char password_string[BUFFER];
     string[0] = '\0';
+    password_string[0] = '\0';
+    
     int i = 0;
-
-    
-    (void)string;
-    
+    resetFlags();
     
     while (1) {
+        
+       
         
         if (Beginflag == 0) {
             uart_printstr("Enter your login: \n\r   username: ");
@@ -155,24 +237,59 @@ int  main( void ) {
         
         if (CheckNameflag == 1 && GetNameStringflag == 1) {
             if (ft_strcmp(string, NAME)) {
-                uart_printstr(" - False");
                 Nameflag = 0;
             } else {
-                uart_printstr(" - True");
                 Nameflag = 1;
             }
             CheckNameflag = 0;
             PassTitleflag = 1;
         }
         
-        if (PassTitleflag == 1 && CheckNameflag == 0 && PassWordflag == 0) {
+        if (PassTitleflag == 1 && CheckPassflag == 0 && PassWordflag == 0) {
             uart_printstr("                  \n\r   password: ");
-            PassTitleflag = 0;
+            buffer[0] = '\0';
+            PassTitleflag = 2;
         }
 
+        if (PassTitleflag == 2 && PassStringflag == 1) {
+            i = 0;
+            while (buffer[i] != '\0') {
+                password_string[i] = buffer[i];
+                i++;        
+            }
+            password_string[i] = '\0';
+            getPassword = 1;
+            PassStringflag = 0;
+            GetPassStringflag = 1;
+            PassTitleflag = 0;
+        }
         
-
-
         
-    };
+        if (getPassword == 1 && GetPassStringflag == 1 && Gameflag == 0) {
+            if (ft_strcmp(password_string, PASSWORD)) {
+                Passflag = 0;
+            } else {
+                Passflag = 1;
+            }
+            getPassword = 0;
+            CheckPassflag = 1;
+          
+        }
+
+        if (Passflag != 2 && Nameflag != 2 && Gameflag == 0) {
+
+            display_message(string);
+            Passflag = 2;
+            Nameflag = 2;
+            
+        }   
+        
+        if (Gameflag == 2)
+            break;
+    }
 }
+
+
+
+
+
