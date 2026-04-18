@@ -6,7 +6,7 @@
 /*   By: nrobinso <nrobinso@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/04/13 15:41:53 by nrobinso          #+#    #+#             */
-/*   Updated: 2026/04/18 19:48:20 by nrobinso         ###   ########.fr       */
+/*   Updated: 2026/04/18 20:39:59 by nrobinso         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -18,9 +18,13 @@
 #define DBL_SPEED (OSC_SPEED_MHZ/2)                     // p 182 set bit UCSRnA -> U2Xn
 #define MYUBRR (F_CPU / (DBL_SPEED * BAUDRATE) -1)      // p 182   UBRR =  16000000
 #define BUFFER 50
+#define LED2 (1 << PB1)
+#define PRESCALIER 256
+#define TIME_FREQUENCY  (F_CPU / PRESCALIER)
 
 #define NAME "Nigel"
 #define PASSWORD "1234"
+
 
 volatile char buffer[BUFFER];
 volatile uint8_t RX_index = 0;
@@ -87,7 +91,7 @@ char uart_interupt_rx(void) {
     
     char c;
     
-    c = UDR0;
+    c = UDR0;                               // Receive Data char
     return (c);                             // return c
 }
 
@@ -101,9 +105,7 @@ void uart_printstr(volatile char* str) {
         UDR0 = str[i];
                               // add to output buffer
         i++; 
-    }
-
-    
+    }    
 }
 
 
@@ -146,7 +148,11 @@ void display_message (char *str) {
      }
 }
 
+void StopBlinkLed(void) {
 
+   TCCR1A &= ~((1 << COM1A1) | (1 << COM1A0));  // Disable OC1A output
+    
+}
 
 
 void __vector_18(void) __attribute__((signal));  // USART_RX interupt 19 - page 66
@@ -160,10 +166,13 @@ void __vector_18(void)
     if (notPrintable(c))
         return;
     if (Gameflag == 1) {
-        if (c == 'y')
+        if (c == 'y') {
             uart_printstr("\n\rLet's go!");
-        else
+            StopBlinkLed();                   // STOP LED D1
+        } else {
             uart_printstr("\n\rbye!");
+            StopBlinkLed();                   // STOP LED D1  
+        }
         Gameflag = 2;
         return;
     }    
@@ -199,10 +208,25 @@ void __vector_18(void)
 }
 
 
+void BlinkLed(void) {
+    DDRB |= LED2;                         // LED D1 
+    
+    TCCR1A |= (1 << COM1A0);
+
+    TCCR1B |= (1 << WGM12);
+
+    TCCR1B |= (1 << CS12);
+
+    OCR1A = (TIME_FREQUENCY / 2); // set Value to 50% - 0.5 sec
+}
+
+
 
 
 int  main( void ) {
-    RX_index = 0;
+
+  
+    
     uart_Init();
     uart_Init_interupts();     
 
@@ -283,13 +307,10 @@ int  main( void ) {
             Nameflag = 2;
             
         }   
-        
+
+        if (Gameflag == 1)
+            BlinkLed();
         if (Gameflag == 2)
             break;
     }
 }
-
-
-
-
-
