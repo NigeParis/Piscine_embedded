@@ -6,42 +6,34 @@
 /*   By: nrobinso <nrobinso@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/04/13 15:41:53 by nrobinso          #+#    #+#             */
-/*   Updated: 2026/04/18 20:52:35 by nrobinso         ###   ########.fr       */
+/*   Updated: 2026/04/19 10:03:01 by nrobinso         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include <avr/io.h>
+#include "uart_lib.h"
+#include "led_lib.h"
 #include "tools.h"
+#include "config.h"
 
-#define BAUDRATE 115200                                 // baud Com Speed
-#define OSC_SPEED_MHZ 16                                // Oscillation Speed page
-#define DBL_SPEED (OSC_SPEED_MHZ/2)                     // p 182 set bit UCSRnA -> U2Xn
-#define MYUBRR (F_CPU / (DBL_SPEED * BAUDRATE) -1)      // p 182   UBRR =  16000000
-#define BUFFER 50
-#define LED2 (1 << PB1)                                 // D2 - with OCR1A
-#define PRESCALIER 256
-#define TIME_FREQUENCY  (F_CPU / PRESCALIER)            // 16 Mhz / 256 = 62500
-
-#define NAME "Nigel"
-#define PASSWORD "1234"
-
-
+// Definitions - actual memory allocation
+// flags for ordering the name and password input and output
 volatile char buffer[BUFFER];
-volatile uint8_t RX_index = 0;
-volatile uint8_t GetNameStringflag = 0;
-volatile uint8_t Stringflag = 0;
-volatile uint8_t PassStringflag = 0;
-volatile uint8_t Nameflag = 0;
-volatile uint8_t Passflag = 2;
-volatile uint8_t PassTitleflag = 0;
-volatile uint8_t Beginflag = 0;
-volatile uint8_t CheckNameflag = 0;
-volatile uint8_t CheckPassflag = 0;
-volatile uint8_t PassWordflag = 0;
-volatile uint8_t notValidChar = 0;
-volatile uint8_t getPassword = 0;
-volatile uint8_t GetPassStringflag = 0;
-volatile uint8_t Gameflag = 0;
+volatile uint8_t RX_index;
+volatile uint8_t GetNameStringflag;
+volatile uint8_t Stringflag;
+volatile uint8_t PassStringflag;
+volatile uint8_t Nameflag;
+volatile uint8_t Passflag;
+volatile uint8_t PassTitleflag;
+volatile uint8_t Beginflag;
+volatile uint8_t CheckNameflag;
+volatile uint8_t CheckPassflag;
+volatile uint8_t PassWordflag;
+volatile uint8_t notValidChar;
+volatile uint8_t getPassword;
+volatile uint8_t GetPassStringflag;
+volatile uint8_t Gameflag;
 
 
 void resetFlags(void) {
@@ -65,66 +57,11 @@ void resetFlags(void) {
 }
 
 
-
-void uart_Init(void) {
-    
-    UBRR0H = (MYUBRR>>8);                   // Set BAUD RATE REGISTER HIGH side  -  page 204
-    UBRR0L = MYUBRR;                        // Set BAUD RATE REGISTER LOW side  -  page 204
-    UCSR0A = (1<<U2X0);                     // Set Double Speed Mode p182  - p200
-    UCSR0C = (1<<UCSZ01)|(1<<UCSZ00);       // Set frame format: 8 data bits, 1 stop bit, no parity - page 203 
-    UCSR0B |= (1 << RXEN0);                 // Enable receiver USART - page 202
-    UCSR0B |= (1 << TXEN0);                 // Enable transmitter and receiver - page 201
-}
-
-void uart_Init_interupts(void) {
-
-    UCSR0B |= (1 << RXCIE0);                // Enable Complete Interupt Enable receiver - page 201
-    SREG |= (1 << 7);                       // ENABLE Global interupts page 20
-}
-
-void uart_interupt_tx(char c) {
-
-    UDR0 = c;                               // Put data into buffer, sends the data
-}
-
-char uart_interupt_rx(void) {
-    
-    char c;
-    
-    c = UDR0;                               // Receive Data char
-    return (c);                             // return c
-}
-
-
-void uart_printstr(volatile char* str) {
-
-    int i = 0;
-                                            // UDRE0 - page 200 indicates Data Register Empty
-    while (str[i] != '\0') {                // UCSR0A - page 200 USART Control and status register
-        while (!(UCSR0A & (1 << UDRE0))) ;  // Set Flag indicates if ready to tramit data 1 = Buf empty
-        UDR0 = str[i];
-                              // add to output buffer
-        i++; 
-    }    
-}
-
-
-
-void uart_printchar(volatile char c) {
-
-        while (!(UCSR0A & (1 << UDRE0))) ;  // Set Flag indicates if ready to tramit data 1 = Buf empty
-        UDR0 = c;
-}
-
-
-
 char backspace(char c) {        
 
     if (c == 0x7F) {
         if (RX_index > 0) {
-            uart_printstr("\b");
-            uart_printstr(" ");
-            uart_printstr("\b");
+            uart_printstr("\b \b");
             RX_index--;
             return c;
         }
@@ -146,14 +83,13 @@ void display_message (char *str) {
      }
 }
 
-void StopBlinkLed(void) {
+/// NOTE: // USART_RX interupt 19 - page 66
+/// ARGS: None
+/// RETURNS: None
+/// REF: Page 66 - Table 12.1 Vector Nbr: 19
+/// USART RX Complete interrupt (fires when a byte arrives on UART).
 
-   TCCR1A &= ~(1 << COM1A0);  // Disable OC1A output
-    
-}
-
-
-void __vector_18(void) __attribute__((signal));  // USART_RX interupt 19 - page 66
+void __vector_18(void) __attribute__((signal));
 void __vector_18(void)
 {
     volatile char c;
@@ -204,17 +140,6 @@ void __vector_18(void)
 }
 
 
-void BlinkLed(void) {
-    DDRB |= LED2;                         // LED D1 
-    
-    TCCR1A |= (1 << COM1A0);
-
-    TCCR1B |= (1 << WGM12);
-
-    TCCR1B |= (1 << CS12);
-
-    OCR1A = (TIME_FREQUENCY / 2); // set Value to 50% - 0.5 sec
-}
 
 
 int  main( void ) {
@@ -301,9 +226,9 @@ int  main( void ) {
         }   
 
         if (Gameflag == 1)
-            BlinkLed();
+            Blink(LED2);
         if (Gameflag == 2) {
-            StopBlinkLed();                   // STOP the blinking LED on D2  
+            StopBlink(LED2);                   // STOP the blinking LED on D2  
             break;
         }
     }
