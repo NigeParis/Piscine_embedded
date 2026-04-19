@@ -1,0 +1,23 @@
+/* ************************************************************************** */
+/*                                                                            */
+/*                                                        :::      ::::::::   */
+/*   uart_lib.h                                         :+:      :+:    :+:   */
+/*                                                    +:+ +:+         +:+     */
+/*   By: nrobinso <nrobinso@student.42.fr>          +#+  +:+       +#+        */
+/*                                                +#+#+#+#+#+   +#+           */
+/*   Created: 2026/04/19 08:24:09 by nrobinso          #+#    #+#             */
+/*   Updated: 2026/04/19 09:02:07 by nrobinso         ###   ########.fr       */
+/*                                                                            */
+/* ************************************************************************** */
+
+#ifndef UART_LIB_H
+# define UART_LIB_H
+
+
+    void uart_Init(void);
+    void uart_interupt_tx(char c);
+    char uart_interupt_rx(void);
+    void uart_printstr(volatile char* str);
+    void uart_Init_interupts(void);
+
+#endif
