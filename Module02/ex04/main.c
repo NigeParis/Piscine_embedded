@@ -6,7 +6,7 @@
 /*   By: nrobinso <nrobinso@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/04/13 15:41:53 by nrobinso          #+#    #+#             */
-/*   Updated: 2026/04/19 10:03:01 by nrobinso         ###   ########.fr       */
+/*   Updated: 2026/04/19 10:23:43 by nrobinso         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -140,30 +140,25 @@ void __vector_18(void)
 }
 
 
-
-
 int  main( void ) {
 
+    char string[BUFFER] = {0};
+    char password_string[BUFFER] = {0};
+    int i = 0;
+    
     uart_Init();
     uart_Init_interupts();     
-
-    char string[BUFFER];
-    char password_string[BUFFER];
-    string[0] = '\0';
-    password_string[0] = '\0';
-    
-    int i = 0;
     resetFlags();
     
     while (1) {
-        
-       
-        
+
+        // display login invitation
         if (Beginflag == 0) {
             uart_printstr("Enter your login: \n\r   username: ");
             Beginflag = 1; 
         }
 
+        // get input login name fron buffer
         if (Beginflag == 1 && Stringflag == 1 && GetNameStringflag == 0) {
             i = 0;
             while (buffer[i] != '\0') {
@@ -175,7 +170,8 @@ int  main( void ) {
             CheckNameflag = 1;
             Stringflag = 0;
         }
-        
+
+        // check login name and flag it
         if (CheckNameflag == 1 && GetNameStringflag == 1) {
             if (ft_strcmp(string, NAME)) {
                 Nameflag = 0;
@@ -185,13 +181,15 @@ int  main( void ) {
             CheckNameflag = 0;
             PassTitleflag = 1;
         }
-        
+
+        // display password invitation
         if (PassTitleflag == 1 && CheckPassflag == 0 && PassWordflag == 0) {
             uart_printstr("                  \n\r   password: ");
             buffer[0] = '\0';
             PassTitleflag = 2;
         }
 
+        // get input password fron buffer
         if (PassTitleflag == 2 && PassStringflag == 1) {
             i = 0;
             while (buffer[i] != '\0') {
@@ -204,8 +202,8 @@ int  main( void ) {
             GetPassStringflag = 1;
             PassTitleflag = 0;
         }
-        
-        
+
+        // check password and flag it        
         if (getPassword == 1 && GetPassStringflag == 1 && Gameflag == 0) {
             if (ft_strcmp(password_string, PASSWORD)) {
                 Passflag = 0;
@@ -214,21 +212,23 @@ int  main( void ) {
             }
             getPassword = 0;
             CheckPassflag = 1;
-          
         }
 
+        // display result of login and password
         if (Passflag != 2 && Nameflag != 2 && Gameflag == 0) {
 
             display_message(string);
             Passflag = 2;
-            Nameflag = 2;
-            
+            Nameflag = 2; 
         }   
 
+        // blink led D2 if password and login match in display_message()
         if (Gameflag == 1)
-            Blink(LED2);
+            Blink(LED2);        // Start blinking led D2
+  
+        // Stop Blinking led D2 and exit main while loop
         if (Gameflag == 2) {
-            StopBlink(LED2);                   // STOP the blinking LED on D2  
+            StopBlink(LED2);    // STOP the blinking LED on D2  
             break;
         }
     }
