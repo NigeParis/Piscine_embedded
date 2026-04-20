@@ -6,7 +6,7 @@
 /*   By: nrobinso <nrobinso@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/04/13 15:41:53 by nrobinso          #+#    #+#             */
-/*   Updated: 2026/04/19 17:48:57 by nrobinso         ###   ########.fr       */
+/*   Updated: 2026/04/20 16:12:37 by nrobinso         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -19,7 +19,7 @@
 #define LED_GREEN (1 << PD6)  // define GREEN led mask
 #define LED_BLUE (1 << PD3)   // define BLUE led mask
       
-void __vector_11(void) __attribute__(signal); // TIMER1_COMPA interupt 11 - page 66
+void __vector_11(void) __attribute__((signal)); // TIMER1_COMPA interupt 11 - page 66
 void __vector_11(void)
 {
     PORTD = (0b00100000);       // LED RED on

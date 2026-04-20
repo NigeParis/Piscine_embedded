@@ -6,7 +6,7 @@
 /*   By: nrobinso <nrobinso@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/04/20 14:15:38 by nrobinso          #+#    #+#             */
-/*   Updated: 2026/04/20 14:23:52 by nrobinso         ###   ########.fr       */
+/*   Updated: 2026/04/20 16:05:41 by nrobinso         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -36,4 +36,23 @@ void timer_init_timer2(void) {
             
     TCCR2B=                
             (1 << CS22);    // prescaler 64 - also works with others
+}
+
+
+
+
+
+void stop_timers(void) {
+
+    TCCR2A &= ~((1 << COM2B1) | (1 << WGM21) | (1 << WGM20));
+            
+    TCCR2B &= ~(1 << CS22);
+
+
+    TCCR0A &= ~((1 << COM0B1) | (1 << COM0A1) | (1 << WGM00) | (1 << WGM01));
+
+    TCCR0B &= ~((1 << CS00) | (1 << CS01)); 
+    
+        
+        
 }

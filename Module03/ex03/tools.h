@@ -6,7 +6,7 @@
 /*   By: nrobinso <nrobinso@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/04/17 13:56:57 by nrobinso          #+#    #+#             */
-/*   Updated: 2026/04/18 17:34:27 by nrobinso         ###   ########.fr       */
+/*   Updated: 2026/04/20 17:17:13 by nrobinso         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -21,5 +21,9 @@
     bool checkChar(char c);
     int ft_strlen(char *str);
     bool ft_strcmp(char *str, char *name);
+    bool is_len_size(char *str, int size);
+    bool is_first_char(char *str, char c);
+    bool is_valid_hex_str(char *str);
+
 
 #endif 

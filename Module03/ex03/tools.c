@@ -6,7 +6,7 @@
 /*   By: nrobinso <nrobinso@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/04/17 13:51:57 by nrobinso          #+#    #+#             */
-/*   Updated: 2026/04/18 17:34:03 by nrobinso         ###   ########.fr       */
+/*   Updated: 2026/04/20 17:30:48 by nrobinso         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -81,17 +81,67 @@ bool ft_strcmp(char *str, char *name) {
     int i = 0;
 
     if (ft_strlen(str) != ft_strlen(name))
-        return(1);
+        return(0);
     if (str[0] == '\0') 
         return (1);
 
     while (name[i] != '\0') {
 
         if (str[i] != name[i])
-            return (1);
+            return (0);
         i++;
     } 
     
+    return (1);
+}
+
+/// NOTE: function chhecks the size of the string aginst size
+/// ARGS: char* str to be checked, unit8_t size to compare 
+/// RETURNS: 0 - false, 1 - true if string is the length found in size 
+
+bool is_len_size(char *str, int size) {
+
+    if (!str)
+        return (0);
+    if (ft_strlen(str) == size)
+        return (1);
     return (0);
 }
+
+
+/// NOTE: function checks first char in a string
+/// ARGS: char* str to be checked, char to compare with
+/// RETURNS: 0 - false, 1 - true
+
+bool is_first_char(char *str, char c) {
+
+    if (!str)
+        return (0);
+    if (str && str[0] == c)
+        return (1);
+    return (0);
+}
+
+
+/// NOTE: function checks the chars are valid HEX in the string
+/// ARGS: char* str
+/// RETURNS: 0 - false, 1 - true
+
+bool is_valid_hex_str(char *str) {
+    
+    int i = 1;
+    if (!str)
+        return (0);
+
+    while (str[i]) {
+
+        if (!((str[i] >= '0' && str[i] <= '9') 
+            || (str[i] >= 'a' 
+            || str[i] <= 'f')))
+                return (0);
+        i++;
+    }
+    return (1);
+}
+
 
