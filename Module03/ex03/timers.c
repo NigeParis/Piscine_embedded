@@ -1,23 +1,18 @@
 /* ************************************************************************** */
 /*                                                                            */
 /*                                                        :::      ::::::::   */
-/*   main.c                                             :+:      :+:    :+:   */
+/*   timers.c                                           :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
 /*   By: nrobinso <nrobinso@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
-/*   Created: 2026/04/13 15:41:53 by nrobinso          #+#    #+#             */
-/*   Updated: 2026/04/20 13:54:40 by nrobinso         ###   ########.fr       */
+/*   Created: 2026/04/20 14:15:38 by nrobinso          #+#    #+#             */
+/*   Updated: 2026/04/20 14:23:52 by nrobinso         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
-#include <util/delay.h>                         // delay for the debounce
+#include "timers.h"
 #include <avr/io.h>
-#include <avr/interrupt.h>
-#include "uart_lib.h"
 
-#define LED_RED (1 << PD5)    // define RED led mask
-#define LED_GREEN (1 << PD6)  // define GREEN led mask
-#define LED_BLUE (1 << PD3)   // define BLUE led mask
 
 void timer_init_timer0(void) {
 
@@ -41,55 +36,4 @@ void timer_init_timer2(void) {
             
     TCCR2B=                
             (1 << CS22);    // prescaler 64 - also works with others
-}
-    
-void  init_rgb(void) {
-
-    timer_init_timer0();    // timer 0 controls led PD5 and PD6 (OCR0A and OCR0B)
-    timer_init_timer2();    // timer 2 controls led PD3 (OCR2B)
-}
-
-void set_rgb(uint8_t r, uint8_t g, uint8_t b) {
-
-    OCR2B = b; // led BLUE
-    OCR0A = g; // led GREEN
-    OCR0B = r; // led RED
-}
-
-void wheel(uint8_t pos) {
-    pos = 255 - pos;
-    if (pos < 85) {
-        set_rgb(255 - pos * 3, 0, pos * 3);
-    } else if (pos < 170) {
-        pos = pos - 85;
-        set_rgb(0, pos * 3, 255 - pos * 3);
-    } else {
-        pos = pos - 170;
-        set_rgb(pos * 3, 255 - pos * 3, 0);
-    }
-}
-
-int main(void) {
-        
-    DDRD |= LED_RED;    // open for output on PD5  
-    DDRD |= LED_GREEN;  // open for output on PD6
-    DDRD |= LED_BLUE;   // open for output on PD3
-
-    init_rgb();
-    
-
-
-    
-
-
-
-
-
-    
-    while (1) {
-  
-       
-
-        
-    }
 }

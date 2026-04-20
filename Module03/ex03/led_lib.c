@@ -6,12 +6,14 @@
 /*   By: nrobinso <nrobinso@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/04/19 09:12:01 by nrobinso          #+#    #+#             */
-/*   Updated: 2026/04/19 09:53:50 by nrobinso         ###   ########.fr       */
+/*   Updated: 2026/04/20 14:17:34 by nrobinso         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include <avr/io.h>
 #include "led_lib.h"
+#include "timers.h"
+
 
 #define PRESCALIER 256
 #define TIME_FREQUENCY  (F_CPU / PRESCALIER)            // 16 Mhz / 256 = 62500
@@ -47,4 +49,27 @@ void StopBlink(uint8_t led) {
     if (led == (1 << PB1)) {
         TCCR1A &= ~(1 << COM1A0);       // Disable OC1A output by stopping CTC timer1
     }
+}
+
+/// NOTE: function Sets the Wheel Color using  - Pd3 - PD5 and PD6 using
+/// ARGS: Led Mask ex : (1 << PB1)
+/// RETURNS: None
+/// REFS: page 132 - Datasheet
+
+void set_rgb(uint8_t r, uint8_t g, uint8_t b) {
+
+    OCR2B = b; // led BLUE
+    OCR0A = g; // led GREEN
+    OCR0B = r; // led RED
+}
+
+/// NOTE: function Sets up the timer 0 and 2  - Pd3 - PD5 and PD6 8 bit Timers
+/// ARGS: None
+/// RETURNS: None
+/// REFS: Function fro EX02 - Module 03
+
+void  init_rgb(void) {
+
+    timer_init_timer0();    // timer 0 controls led PD5 and PD6 (OCR0A and OCR0B)
+    timer_init_timer2();    // timer 2 controls led PD3 (OCR2B)
 }
