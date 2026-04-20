@@ -6,7 +6,7 @@
 /*   By: nrobinso <nrobinso@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/04/19 09:11:22 by nrobinso          #+#    #+#             */
-/*   Updated: 2026/04/20 14:21:33 by nrobinso         ###   ########.fr       */
+/*   Updated: 2026/04/20 14:32:45 by nrobinso         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -17,6 +17,7 @@
     void StopBlink(uint8_t led);
     void set_rgb(uint8_t r, uint8_t g, uint8_t b);
     void init_rgb(void);
+    void wheel(uint8_t pos);
 
 
 #endif

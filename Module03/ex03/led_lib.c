@@ -6,7 +6,7 @@
 /*   By: nrobinso <nrobinso@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/04/19 09:12:01 by nrobinso          #+#    #+#             */
-/*   Updated: 2026/04/20 14:17:34 by nrobinso         ###   ########.fr       */
+/*   Updated: 2026/04/20 14:27:08 by nrobinso         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -72,4 +72,24 @@ void  init_rgb(void) {
 
     timer_init_timer0();    // timer 0 controls led PD5 and PD6 (OCR0A and OCR0B)
     timer_init_timer2();    // timer 2 controls led PD3 (OCR2B)
+}
+
+
+
+/// NOTE: function set colour with unique number using  - Pd3 - PD5 and PD6 8 bit Timers
+/// ARGS: None
+/// RETURNS: None
+/// REFS: Function fro EX02 - Module 03
+
+void wheel(uint8_t pos) {
+    pos = 255 - pos;
+    if (pos < 85) {
+        set_rgb(255 - pos * 3, 0, pos * 3);
+    } else if (pos < 170) {
+        pos = pos - 85;
+        set_rgb(0, pos * 3, 255 - pos * 3);
+    } else {
+        pos = pos - 170;
+        set_rgb(pos * 3, 255 - pos * 3, 0);
+    }
 }

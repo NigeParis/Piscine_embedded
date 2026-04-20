@@ -6,7 +6,7 @@
 /*   By: nrobinso <nrobinso@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/04/13 15:41:53 by nrobinso          #+#    #+#             */
-/*   Updated: 2026/04/20 14:18:01 by nrobinso         ###   ########.fr       */
+/*   Updated: 2026/04/20 14:46:47 by nrobinso         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -93,52 +93,6 @@ void display_message (char *str) {
      }
 }
 
-
-// void timer_init_timer0(void) {
-
-//     TCCR0A= (1 << COM0B1)   // 8 bit Timer 0 after Schema works on PD6 and PD5 - page 113
-//             | (1 << COM0A1) 
-//             | (1 << WGM00)  // Mode 3 for timer 0 - WGM00 + WGM01 - page 115 datasheet
-//             | (1 << WGM01); // Mode 3 WGM00 + WGM01 --> SAME as WG10 + WGM11
-
-//     TCCR0B= (1 << CS00)     // prescaler 64 - also works with others prescaler setting
-//             | (1 << CS01);  // CS01 + C00  - page 117 datasheet
-//  }
-
-// /// NOTE: Timer 2 after Schema and page 162 in the datasheet
-
-// void timer_init_timer2(void) {
-
-//     TCCR2A=                 // 8 Bit Timer 2 - page 164 datasheet
-//             (1 << COM2B1)   // Only use COM2B1 this works with PD3 - see schema
-//             | (1 << WGM21)  // Mode 3 Fast PWM - TOP 0xFF Upd OCRx: BOTTOM Timer Over Flow Flag "TOV" MAX
-//             | (1 << WGM20); // PWM mode 3 - page 164 datasheet
-            
-//     TCCR2B=                
-//             (1 << CS22);    // prescaler 64 - also works with others
-// }
-    
-// void  init_rgb(void) {
-
-//     timer_init_timer0();    // timer 0 controls led PD5 and PD6 (OCR0A and OCR0B)
-//     timer_init_timer2();    // timer 2 controls led PD3 (OCR2B)
-// }
-
-
-void wheel(uint8_t pos) {
-    pos = 255 - pos;
-    if (pos < 85) {
-        set_rgb(255 - pos * 3, 0, pos * 3);
-    } else if (pos < 170) {
-        pos = pos - 85;
-        set_rgb(0, pos * 3, 255 - pos * 3);
-    } else {
-        pos = pos - 170;
-        set_rgb(pos * 3, 255 - pos * 3, 0);
-    }
-}
-
-
 void __vector_18(void) __attribute__((signal));
 void __vector_18(void)
 {
@@ -202,6 +156,8 @@ int main(void) {
     char password_string[BUFFER] = {0};
     int i = 0;
     
+    (void)password_string;
+    
     uart_Init();
     uart_Init_interupts();     
     resetFlags();
@@ -210,7 +166,7 @@ int main(void) {
 
         // display login invitation
         if (Beginflag == 0) {
-            uart_printstr("Enter your login: \n\r   username: ");
+            uart_printstr("Enter color format : #RRGGBB\n\r   hex: ");
             Beginflag = 1; 
         }
 
@@ -227,7 +183,7 @@ int main(void) {
             Stringflag = 0;
         }
 
-        // check login name and flag it
+        // check PARSING HEX login name and flag it
         if (CheckNameflag == 1 && GetNameStringflag == 1) {
             if (ft_strcmp(string, NAME)) {
                 Nameflag = 0;
@@ -238,43 +194,10 @@ int main(void) {
             PassTitleflag = 1;
         }
 
-        // display password invitation
-        if (PassTitleflag == 1 && CheckPassflag == 0 && PassWordflag == 0) {
-            uart_printstr("                  \n\r   password: ");
-            buffer[0] = '\0';
-            PassTitleflag = 2;
-        }
 
-        // get input password fron buffer
-        if (PassTitleflag == 2 && PassStringflag == 1) {
-            i = 0;
-            while (buffer[i] != '\0') {
-                password_string[i] = buffer[i];
-                i++;        
-            }
-            password_string[i] = '\0';
-            getPassword = 1;
-            PassStringflag = 0;
-            GetPassStringflag = 1;
-            PassTitleflag = 0;
-        }
-
-        // check password and flag it        
-        if (getPassword == 1 && GetPassStringflag == 1 && Gameflag == 0) {
-            if (ft_strcmp(password_string, PASSWORD)) {
-                Passflag = 0;
-            } else {
-                Passflag = 1;
-            }
-            getPassword = 0;
-            CheckPassflag = 1;
-        }
-
-        // display result of login and password
-        if (Passflag != 2 && Nameflag != 2 && Gameflag == 0) {
+        if (Nameflag != 2 && Gameflag == 0) {
 
             display_message(string);
-            Passflag = 2;
             Nameflag = 2; 
         }   
 
