@@ -6,7 +6,7 @@
 /*   By: nrobinso <nrobinso@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/04/17 13:51:57 by nrobinso          #+#    #+#             */
-/*   Updated: 2026/04/20 17:30:48 by nrobinso         ###   ########.fr       */
+/*   Updated: 2026/04/20 20:28:48 by nrobinso         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -137,7 +137,7 @@ bool is_valid_hex_str(char *str) {
 
         if (!((str[i] >= '0' && str[i] <= '9') 
             || (str[i] >= 'a' 
-            || str[i] <= 'f')))
+            && str[i] <= 'f')))
                 return (0);
         i++;
     }
@@ -145,3 +145,37 @@ bool is_valid_hex_str(char *str) {
 }
 
 
+/// NOTE: function splits a string into 2 Chars in function of stating position
+/// ARGS: pointer string to split, pointer to hex dest, int start point
+/// RETURNS: nothing 
+
+void split_hex(char *str, char *hex, int start_pos) {
+
+    int i = 0;
+    int y = 1;
+    int stop = start_pos + 2;
+    char *dest;
+    dest = hex;
+    while (str && str[y]){
+        
+        dest[i] = str[start_pos + 1];
+        i++;
+        y++;
+        start_pos++;
+        if (start_pos == stop)
+            break;   
+    }
+    dest[i] = '\0';    
+}
+
+/// NOTE: function check if a digit
+/// ARGS: a character
+/// RETURNS: 0 - false, 1 - true
+
+bool is_digit(char c) {
+
+    if (c >= '0' && c <= '9') {
+        return (1);
+    }
+    return (0);
+}

@@ -6,7 +6,7 @@
 /*   By: nrobinso <nrobinso@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/04/13 15:41:53 by nrobinso          #+#    #+#             */
-/*   Updated: 2026/04/20 17:16:59 by nrobinso         ###   ########.fr       */
+/*   Updated: 2026/04/20 20:30:29 by nrobinso         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -39,7 +39,6 @@ volatile uint8_t check_format_flag;
 volatile uint8_t CheckPassflag;
 volatile uint8_t notValidChar;
 volatile uint8_t program_led_flag;
-volatile uint8_t test = 0;
 
 void resetFlags(void) {
 
@@ -51,9 +50,38 @@ void resetFlags(void) {
     check_format_flag = 0;
     notValidChar = 0;
     program_led_flag = 0;
-    test = 0;
     buffer[0] = '\0';
 }
+
+
+int convert_from_hex(char *str) {
+
+    int i = 0;
+    int res = 0;
+    if (!str)
+        return (0);
+
+   while (str && str[i]) {
+    if (i == 0) {
+        if (is_digit(str[i]))
+            res += (str[i] - '0') + 16;      // high nibble × 16
+        else if (str[i] >= 'A' && str[i] <= 'F')
+            res += (str[i] - 55) + 16;
+    } else if (i == 1) {
+        if (is_digit(str[i]))
+            res += (str[i] - '0');            // low nibble, no multiplier
+        else if (str[i] >= 'A' && str[i] <= 'F')
+            res += (str[i] - 55);
+    }
+    i++;
+}
+
+    uart_printstr("|");
+    uart_interupt_tx(res + '0');
+    uart_printstr("|");
+    return res;
+}
+
 
 
 
@@ -76,9 +104,9 @@ void display_message (char *str) {
      if (valid_format_flag == 1) {
          init_rgb();
         
-         uart_printstr("\n\rColor is #");          
+         uart_printstr("\n\rColor is ");          
          uart_printstr(str);   
-         uart_printstr("!\n\rTry another colour ? [y/n]: ");
+         uart_printstr(" !\n\rTry another colour ? [y/n]: ");
          program_led_flag = 1;
      } else {
          uart_printstr("\n\rFormat error - #RRGGBB\n\r\n\r");
@@ -135,10 +163,10 @@ void __vector_18(void)
 
 bool is_valid_input(char *str) {
     
-    valid_format_flag = 1;        
+    valid_format_flag = 1;
+            
     if (!str)
         return (0);    
-
     if (!is_len_size(str, INPUT_SIZE_MAX)) {  
         valid_format_flag = 0;
         return (0);
@@ -154,6 +182,7 @@ bool is_valid_input(char *str) {
     return (1);
 }
 
+
 int main(void) {
         
     DDRD |= LED_RED;    // open for output on PD5  
@@ -162,10 +191,25 @@ int main(void) {
 
     
     char string[BUFFER] = {0};
-    char hex_string[BUFFER] = {0};
+    char hex_red[10] = {0};
+    char hex_blue[10] = {0};
+    char hex_green[10] = {0};
+
+    int red = 0;
+    int blue = 0;
+    int green = 0;
+
+    
     int i = 0;
     
-    (void)hex_string;
+    (void)hex_red;
+    (void)hex_blue;
+    (void)hex_green;
+    (void)red;
+    (void)blue;
+    (void)green;
+
+    
     
     uart_Init();
     uart_Init_interupts();     
@@ -195,8 +239,29 @@ int main(void) {
         // check PARSING HEX login name and flag it
         if (check_format_flag == 1 && got_hex_input_flag == 1) {
 
-            if (is_valid_input(string)) {                
-                valid_format_flag = 1;        
+            if (is_valid_input(string)) { 
+                split_hex(string, hex_red, 0);
+                split_hex(string, hex_blue, 2);
+                split_hex(string, hex_green, 4);
+                
+                
+                red = convert_from_hex(hex_red);
+                
+           
+           
+            // uart_printstr("|");
+            // uart_printstr(hex_red);
+            // uart_printstr("|");
+            // uart_printstr(hex_blue);
+            // uart_printstr("|");
+            // uart_printstr(hex_green);
+            // uart_printstr("|");
+   
+
+                
+
+                
+                valid_format_flag = 1;
             } else {
                 valid_format_flag = 0;
             }
@@ -213,12 +278,6 @@ int main(void) {
         // Set led PD3,5,6 to color
         if (program_led_flag == 1) {
         
-            test++;
-            if (test>2)
-                test = 1;
-            if (test == 1)
-                set_rgb(255,0,0);  // set colour
-            if (test == 2)
                 set_rgb(0,0,255);  // set colour
         }
         // Stop program
