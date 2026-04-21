@@ -6,7 +6,7 @@
 /*   By: nrobinso <nrobinso@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/04/13 15:41:53 by nrobinso          #+#    #+#             */
-/*   Updated: 2026/04/20 13:54:40 by nrobinso         ###   ########.fr       */
+/*   Updated: 2026/04/21 08:42:14 by nrobinso         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -80,16 +80,12 @@ int main(void) {
 
 
     
-
-
-
-
-
-    
     while (1) {
   
-       
-
+        for(int pos = 0; pos < 255; pos++ ) {
         
+            wheel(pos);
+            _delay_ms(20);
+        }
     }
 }
