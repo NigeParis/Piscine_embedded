@@ -6,12 +6,14 @@
 /*   By: nrobinso <nrobinso@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/04/17 13:56:57 by nrobinso          #+#    #+#             */
-/*   Updated: 2026/04/21 16:42:47 by nrobinso         ###   ########.fr       */
+/*   Updated: 2026/04/21 17:17:55 by nrobinso         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #ifndef TOOLS_H
     # define TOOLS_H
+    typedef unsigned char uint8_t;      // needed because not using stdlib
+
 
     bool is_upper(unsigned char c);
     unsigned char to_upper(unsigned char c); 

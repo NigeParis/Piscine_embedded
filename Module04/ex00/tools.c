@@ -6,12 +6,15 @@
 /*   By: nrobinso <nrobinso@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/04/17 13:51:57 by nrobinso          #+#    #+#             */
-/*   Updated: 2026/04/21 16:42:35 by nrobinso         ###   ########.fr       */
+/*   Updated: 2026/04/21 17:14:26 by nrobinso         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "tools.h"
 #include "uart_lib.h"
+typedef unsigned char uint8_t;      // needed because not using stdlib
+
+
 
 bool is_upper(unsigned char c) {
 

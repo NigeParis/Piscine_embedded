@@ -6,7 +6,7 @@
 #    By: nrobinso <nrobinso@student.42.fr>          +#+  +:+       +#+         #
 #                                                 +#+#+#+#+#+   +#+            #
 #    Created: 2026/04/13 13:45:55 by nrobinso          #+#    #+#              #
-#    Updated: 2026/04/20 17:37:50 by nrobinso         ###   ########.fr        #
+#    Updated: 2026/04/21 18:22:11 by nrobinso         ###   ########.fr        #
 #                                                                              #
 # **************************************************************************** #
 
@@ -44,7 +44,6 @@ hex:
 	
 flash:
 	$(FLASH) $(PROGRAMMER) $(CARD) $(PORT) $(BAUD) $(FLASH_IN_OUT)
-	@screen /dev/ttyUSB0 115200
 
 clean:
 	rm -rf $(NAME).bin
