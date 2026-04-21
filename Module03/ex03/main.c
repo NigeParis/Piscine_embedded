@@ -6,7 +6,7 @@
 /*   By: nrobinso <nrobinso@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/04/13 15:41:53 by nrobinso          #+#    #+#             */
-/*   Updated: 2026/04/21 11:17:55 by nrobinso         ###   ########.fr       */
+/*   Updated: 2026/04/21 15:06:09 by nrobinso         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -111,10 +111,14 @@ void display_message (unsigned char *str) {
      if (valid_format_flag == 1) {
          init_rgb();
         
-         uart_printstr("\n\rColor is ");          
-         uart_printstr((char*)str);   
-         uart_printstr(" !\n\rTry another colour ? [y/n]: ");
-         program_led_flag = 1;
+        uart_printstr("\n\rColor is ");          
+        uart_printstr((char*)str);   
+        uart_printstr(" !\n\rTry another colour ? [y/n]: ");
+        DDRD |= LED_RED;    // open for output on PD5
+        DDRD |= LED_BLUE;    // open for output on PD5
+        DDRD |= LED_GREEN;  // open for output on PD6    
+        init_rgb();
+        program_led_flag = 1;
      } else {
          uart_printstr("\n\rFormat error - #RRGGBB\n\r\n\r");
          resetFlags();
@@ -201,12 +205,12 @@ int main(void) {
     DDRD |= LED_BLUE;   // open for output on PD3
 
     
-    unsigned char string[BUFFER] = {0};
-    unsigned char hex_red[10] = {0};
+    unsigned char string[BUFFER] = {0};         // copy of input from keyboard buffer
+    unsigned char hex_red[10] = {0};            // RGB hex strings
     unsigned char hex_blue[10] = {0};
     unsigned char hex_green[10] = {0};
 
-    int red = 0;
+    int red = 0;                // decimal values used in set_rgb function
     int blue = 0;
     int green = 0;
 
@@ -214,16 +218,14 @@ int main(void) {
     int i = 0;
         
     
-    uart_Init();
-    uart_Init_interupts();     
-    resetFlags();
+    uart_Init();                 // uart set up params - uart lib
+    uart_Init_interupts();       // interupt for getting key input
+    resetFlags();                // set all flags at start up
     
-
-    // convert_from_hex("0D");
     
     while (1) {
 
-        // display login invitation
+        // display invitation
         if (start_flag == 0) {
             uart_printstr("Enter color format hex: #RRGGBB\n\r   hex: ");
             start_flag = 1; 
@@ -241,16 +243,17 @@ int main(void) {
             check_format_flag = 1;
             return_key_flag = 0;
         }
-        // check PARSING HEX login name and flag it
+        
+        // check and make PARSING HEX and flag it
         if (check_format_flag == 1 && got_hex_input_flag == 1) {
 
             if (is_valid_input(string)) { 
 
-                split_hex(string, hex_red, 0);
+                split_hex(string, hex_red, 0);          // split 0xFFFFFF int three rgb hex string
                 split_hex(string, hex_green, 2);
                 split_hex(string, hex_blue, 4);
           
-                red = convert_from_hex(hex_red);
+                red = convert_from_hex(hex_red);        // convert to dec each 0xFF
                 green = convert_from_hex(hex_green);
                 blue = convert_from_hex(hex_blue);
                 
@@ -266,20 +269,32 @@ int main(void) {
 
             display_message(string);
             valid_format_flag = 2; 
-        }   
-
-        // Set led PD3,5,6 to color
-        if (program_led_flag == 1) {
-        
-                set_rgb(red,green,blue);  // set colour
-                if (red == 0 && green == 0 && blue == 0) {
-                    stop_timers();
-                    resetFlags();
-                }
         }
+           
+        
+        // Set led PD3,5,6 to color
+        set_rgb(red, green, blue);
+
+        
+        if (program_led_flag == 1) {
+            
+            if (red == 0 || green == 0 || blue == 0) {
+            
+                if (red == 0)
+                    DDRD &= ~(LED_RED);    // close for output on PD5
+            
+                if (green == 0)
+                    DDRD &= ~(LED_GREEN);  // close for output on PD6
+            
+                if (blue == 0)
+                    DDRD &= ~(LED_BLUE);   // close for output on PD5
+            } 
+        }
+        
         // Stop program
         if (program_led_flag == 2) {
             break;
         }
+        
     }
 }
