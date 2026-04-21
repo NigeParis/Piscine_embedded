@@ -6,7 +6,7 @@
 /*   By: nrobinso <nrobinso@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/04/19 08:24:09 by nrobinso          #+#    #+#             */
-/*   Updated: 2026/04/19 09:02:07 by nrobinso         ###   ########.fr       */
+/*   Updated: 2026/04/21 10:47:18 by nrobinso         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -15,9 +15,10 @@
 
 
     void uart_Init(void);
-    void uart_interupt_tx(char c);
-    char uart_interupt_rx(void);
-    void uart_printstr(volatile char* str);
+    void uart_interupt_tx(unsigned char c);
+    unsigned char uart_interupt_rx(void);
+    void uart_printstr(volatile char* string);
     void uart_Init_interupts(void);
-
+    void uart_tx(volatile unsigned char c);
+    
 #endif

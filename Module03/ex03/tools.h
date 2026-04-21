@@ -6,26 +6,26 @@
 /*   By: nrobinso <nrobinso@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/04/17 13:56:57 by nrobinso          #+#    #+#             */
-/*   Updated: 2026/04/20 18:54:51 by nrobinso         ###   ########.fr       */
+/*   Updated: 2026/04/21 07:47:29 by nrobinso         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #ifndef TOOLS_H
     # define TOOLS_H
 
-    bool is_upper(char c);
-    char to_upper(char c); 
-    char to_lower(char c); 
-    char inverse_char(char c); 
-    bool notPrintable(char c);
-    bool checkChar(char c);
-    int ft_strlen(char *str);
-    bool ft_strcmp(char *str, char *name);
-    bool is_len_size(char *str, int size);
-    bool is_first_char(char *str, char c);
-    bool is_valid_hex_str(char *str);
-    void split_hex(char *str, char *hex, int start_pos);
-    bool is_digit(char c);
+    bool is_upper(unsigned char c);
+    unsigned char to_upper(unsigned char c); 
+    unsigned char to_lower(unsigned char c); 
+    unsigned char inverse_char(unsigned char c); 
+    bool notPrintable(unsigned char c);
+    bool checkChar(unsigned char c);
+    int ft_strlen(unsigned char *str);
+    bool ft_strcmp(unsigned char *str, unsigned char *name);
+    bool is_len_size(unsigned char *str, int size);
+    bool is_first_char(unsigned char *str, unsigned char c);
+    bool is_valid_hex_str(unsigned char *str);
+    void split_hex(unsigned char *str, unsigned char *hex, int start_pos);
+    bool is_digit(unsigned char c);
 
 
 #endif 

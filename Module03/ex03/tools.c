@@ -6,13 +6,14 @@
 /*   By: nrobinso <nrobinso@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/04/17 13:51:57 by nrobinso          #+#    #+#             */
-/*   Updated: 2026/04/20 20:28:48 by nrobinso         ###   ########.fr       */
+/*   Updated: 2026/04/21 09:54:06 by nrobinso         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "tools.h"
+#include "uart_lib.h"
 
-bool is_upper(char c) {
+bool is_upper(unsigned char c) {
 
     if (c >= 'A' && c <= 'Z') {
         return (1);
@@ -20,7 +21,7 @@ bool is_upper(char c) {
     return (0);
 }
 
-char to_upper(char c) {
+unsigned char to_upper(unsigned char c) {
 
     if (c >= 'a' && c <= 'z') {
         c -= 32;   
@@ -28,7 +29,7 @@ char to_upper(char c) {
     return c;
 }
 
-char to_lower(char c) {
+unsigned char to_lower(unsigned char c) {
 
     if (c >= 'A' && c <= 'Z') {
         c += 32;   
@@ -36,7 +37,7 @@ char to_lower(char c) {
     return c;
 }
 
-char inverse_char(char c) {
+unsigned char inverse_char(unsigned char c) {
 
     if (is_upper(c))
         c = to_lower(c);
@@ -47,7 +48,7 @@ char inverse_char(char c) {
 }
 
 
-bool notPrintable(char c) {
+bool notPrintable(unsigned char c) {
     if (c == 0x7F || c == '\r')
         return (0);
     if (c < ' ' || c > '~')
@@ -56,7 +57,7 @@ bool notPrintable(char c) {
 }
 
 
-bool checkChar(char c) {
+bool checkChar(unsigned char c) {
     
     if (c == '\t' || c =='\b')
         return (1);
@@ -64,8 +65,7 @@ bool checkChar(char c) {
 }
 
 
-
-int ft_strlen(char *str) {
+int ft_strlen(unsigned char *str) {
     
     int i = 0;
     if (!str)
@@ -76,7 +76,7 @@ int ft_strlen(char *str) {
 }
 
 
-bool ft_strcmp(char *str, char *name) {
+bool ft_strcmp(unsigned char *str, unsigned char *name) {
 
     int i = 0;
 
@@ -99,7 +99,7 @@ bool ft_strcmp(char *str, char *name) {
 /// ARGS: char* str to be checked, unit8_t size to compare 
 /// RETURNS: 0 - false, 1 - true if string is the length found in size 
 
-bool is_len_size(char *str, int size) {
+bool is_len_size(unsigned char *str, int size) {
 
     if (!str)
         return (0);
@@ -113,7 +113,7 @@ bool is_len_size(char *str, int size) {
 /// ARGS: char* str to be checked, char to compare with
 /// RETURNS: 0 - false, 1 - true
 
-bool is_first_char(char *str, char c) {
+bool is_first_char(unsigned char *str, unsigned char c) {
 
     if (!str)
         return (0);
@@ -127,7 +127,7 @@ bool is_first_char(char *str, char c) {
 /// ARGS: char* str
 /// RETURNS: 0 - false, 1 - true
 
-bool is_valid_hex_str(char *str) {
+bool is_valid_hex_str(unsigned char *str) {
     
     int i = 1;
     if (!str)
@@ -149,12 +149,12 @@ bool is_valid_hex_str(char *str) {
 /// ARGS: pointer string to split, pointer to hex dest, int start point
 /// RETURNS: nothing 
 
-void split_hex(char *str, char *hex, int start_pos) {
+void split_hex(unsigned char *str, unsigned char *hex, int start_pos) {
 
     int i = 0;
     int y = 1;
     int stop = start_pos + 2;
-    char *dest;
+    unsigned char *dest;
     dest = hex;
     while (str && str[y]){
         
@@ -165,14 +165,17 @@ void split_hex(char *str, char *hex, int start_pos) {
         if (start_pos == stop)
             break;   
     }
-    dest[i] = '\0';    
+    dest[i] = '\0';
+    // uart_printstr((volatile char*)"\n\rdest-split{");
+    // uart_printstr((volatile char*)hex);
+    // uart_printstr((volatile char*)"}\r\n");    
 }
 
 /// NOTE: function check if a digit
 /// ARGS: a character
 /// RETURNS: 0 - false, 1 - true
 
-bool is_digit(char c) {
+bool is_digit(unsigned char c) {
 
     if (c >= '0' && c <= '9') {
         return (1);

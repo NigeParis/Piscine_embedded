@@ -6,7 +6,7 @@
 /*   By: nrobinso <nrobinso@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/04/19 08:24:14 by nrobinso          #+#    #+#             */
-/*   Updated: 2026/04/19 09:01:52 by nrobinso         ###   ########.fr       */
+/*   Updated: 2026/04/21 10:46:57 by nrobinso         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -40,7 +40,7 @@ void uart_Init(void) {
 /// RETURNS: None
 /// REFS: page 209 - Datasheet
 
-void uart_interupt_tx(char c) {
+void uart_interupt_tx(volatile unsigned char c) {
 
     UDR0 = c;    // Put data into buffer, sends the data - page 187
 }
@@ -51,7 +51,7 @@ void uart_interupt_tx(char c) {
 /// RETURNS: char
 /// REFS: page 209 - Datasheet
 
-char uart_interupt_rx(void) {
+unsigned char uart_interupt_rx(void) {
     
     char c;
     
@@ -65,9 +65,11 @@ char uart_interupt_rx(void) {
 /// RETURNS: None
 /// REFS: page 209 - Datasheet
 
-void uart_printstr(volatile char* str) {
+void uart_printstr(volatile char* string) {
 
     int i = 0;
+    volatile unsigned char *str;
+    str = (unsigned char *)string;
                                             // UDRE0 - page 200 indicates Data Register Empty
     while (str[i] != '\0') {                // UCSR0A - page 200 USART Control and status register
         while (!(UCSR0A & (1 << UDRE0))) ;  // Set Flag indicates if ready to tramit data 1 = Buf empty
@@ -87,3 +89,17 @@ void uart_Init_interupts(void) {
     SREG |= (1 << 7);                       // ENABLE Global interupts page 20
 }
 
+
+
+
+/// NOTE: function enables UART interupts
+/// ARGS: None
+/// RETURNS: None
+/// REFS: page 201 - Datasheet
+
+void uart_tx(volatile unsigned char c)
+{
+    // Wait for empty transmit buffer
+    while (!(UCSR0A & (1 << UDRE0))) ;                  // Set Flag indicates if ready to tramit data 1 = Buf empty
+    UDR0 = c;                                           // Put data into buffer, sends the data
+}

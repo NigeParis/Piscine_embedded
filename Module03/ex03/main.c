@@ -6,7 +6,7 @@
 /*   By: nrobinso <nrobinso@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/04/13 15:41:53 by nrobinso          #+#    #+#             */
-/*   Updated: 2026/04/20 20:30:29 by nrobinso         ###   ########.fr       */
+/*   Updated: 2026/04/21 11:17:55 by nrobinso         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -27,6 +27,8 @@
 
 #define INPUT_SIZE_MAX 7
 
+typedef unsigned char uint8_t;
+
 // Definitions - actual memory allocation
 // flags for ordering the name and password input and output
 volatile char buffer[BUFFER];
@@ -39,6 +41,7 @@ volatile uint8_t check_format_flag;
 volatile uint8_t CheckPassflag;
 volatile uint8_t notValidChar;
 volatile uint8_t program_led_flag;
+unsigned char hextest[3] = {'a','d','\0'};
 
 void resetFlags(void) {
 
@@ -54,31 +57,35 @@ void resetFlags(void) {
 }
 
 
-int convert_from_hex(char *str) {
+uint8_t convert_from_hex(unsigned char *str) {
 
-    int i = 0;
-    int res = 0;
+    volatile int i = 0;
+    volatile uint8_t high_end = 0;
+    volatile uint8_t low_end = 0;
+    volatile uint8_t res = 0;
+    
     if (!str)
         return (0);
 
-   while (str && str[i]) {
-    if (i == 0) {
-        if (is_digit(str[i]))
-            res += (str[i] - '0') + 16;      // high nibble × 16
-        else if (str[i] >= 'A' && str[i] <= 'F')
-            res += (str[i] - 55) + 16;
-    } else if (i == 1) {
-        if (is_digit(str[i]))
-            res += (str[i] - '0');            // low nibble, no multiplier
-        else if (str[i] >= 'A' && str[i] <= 'F')
-            res += (str[i] - 55);
-    }
-    i++;
-}
+    while (str && str[i]) {
 
-    uart_printstr("|");
-    uart_interupt_tx(res + '0');
-    uart_printstr("|");
+        if (i == 0) {
+            if (is_digit(str[i])) {
+                high_end = (str[i] - '0');      // high nibble × 16
+            } else if (str[i] >= 'a' && str[i] <= 'f') {
+                high_end = (str[i] - 'a') + 10;
+            }
+        }
+
+        if  (i == 1) {
+                if (is_digit(str[i]))
+                    low_end += (str[i] - '0');            // low nibble, no multiplier
+                else if (str[i] >= 'a' && str[i] <= 'f')
+                    low_end += (str[i] - 'a') + 10;
+            }
+            i++;
+        }
+        res = (((high_end) * 16) + low_end);
     return res;
 }
 
@@ -86,7 +93,7 @@ int convert_from_hex(char *str) {
 
 
 
-char backspace(char c) {        
+char backspace(unsigned char c) {        
 
     if (c == 0x7F) {
         if (RX_index > 0) {
@@ -99,13 +106,13 @@ char backspace(char c) {
 }
 
 
-void display_message (char *str) {
+void display_message (unsigned char *str) {
     
      if (valid_format_flag == 1) {
          init_rgb();
         
          uart_printstr("\n\rColor is ");          
-         uart_printstr(str);   
+         uart_printstr((char*)str);   
          uart_printstr(" !\n\rTry another colour ? [y/n]: ");
          program_led_flag = 1;
      } else {
@@ -131,8 +138,12 @@ void __vector_18(void)
             stop_timers();
             return;
         } else {
-            uart_printstr("\n\rbye!");
-            stop_timers();
+            if ( c == 'n') {
+                uart_printstr("\n\rbye!");
+                stop_timers();
+            } else {
+                return;
+            }
         }
         program_led_flag = 2;
         return;
@@ -161,7 +172,7 @@ void __vector_18(void)
     }
 }
 
-bool is_valid_input(char *str) {
+bool is_valid_input(unsigned char *str) {
     
     valid_format_flag = 1;
             
@@ -190,10 +201,10 @@ int main(void) {
     DDRD |= LED_BLUE;   // open for output on PD3
 
     
-    char string[BUFFER] = {0};
-    char hex_red[10] = {0};
-    char hex_blue[10] = {0};
-    char hex_green[10] = {0};
+    unsigned char string[BUFFER] = {0};
+    unsigned char hex_red[10] = {0};
+    unsigned char hex_blue[10] = {0};
+    unsigned char hex_green[10] = {0};
 
     int red = 0;
     int blue = 0;
@@ -201,19 +212,14 @@ int main(void) {
 
     
     int i = 0;
-    
-    (void)hex_red;
-    (void)hex_blue;
-    (void)hex_green;
-    (void)red;
-    (void)blue;
-    (void)green;
-
-    
+        
     
     uart_Init();
     uart_Init_interupts();     
     resetFlags();
+    
+
+    // convert_from_hex("0D");
     
     while (1) {
 
@@ -227,7 +233,7 @@ int main(void) {
         if (start_flag == 1 && return_key_flag == 1 && got_hex_input_flag == 0) {
             i = 0;
             while (buffer[i] != '\0') {
-                string[i] = buffer[i];
+                string[i] = to_lower(buffer[i]);
                 i++;        
             }
             string[i] = '\0';
@@ -235,31 +241,18 @@ int main(void) {
             check_format_flag = 1;
             return_key_flag = 0;
         }
-
         // check PARSING HEX login name and flag it
         if (check_format_flag == 1 && got_hex_input_flag == 1) {
 
             if (is_valid_input(string)) { 
+
                 split_hex(string, hex_red, 0);
-                split_hex(string, hex_blue, 2);
-                split_hex(string, hex_green, 4);
-                
-                
+                split_hex(string, hex_green, 2);
+                split_hex(string, hex_blue, 4);
+          
                 red = convert_from_hex(hex_red);
-                
-           
-           
-            // uart_printstr("|");
-            // uart_printstr(hex_red);
-            // uart_printstr("|");
-            // uart_printstr(hex_blue);
-            // uart_printstr("|");
-            // uart_printstr(hex_green);
-            // uart_printstr("|");
-   
-
-                
-
+                green = convert_from_hex(hex_green);
+                blue = convert_from_hex(hex_blue);
                 
                 valid_format_flag = 1;
             } else {
@@ -278,7 +271,11 @@ int main(void) {
         // Set led PD3,5,6 to color
         if (program_led_flag == 1) {
         
-                set_rgb(0,0,255);  // set colour
+                set_rgb(red,green,blue);  // set colour
+                if (red == 0 && green == 0 && blue == 0) {
+                    stop_timers();
+                    resetFlags();
+                }
         }
         // Stop program
         if (program_led_flag == 2) {
