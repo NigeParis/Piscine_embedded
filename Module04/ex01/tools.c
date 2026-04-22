@@ -1,0 +1,225 @@
+/* ************************************************************************** */
+/*                                                                            */
+/*                                                        :::      ::::::::   */
+/*   tools.c                                            :+:      :+:    :+:   */
+/*                                                    +:+ +:+         +:+     */
+/*   By: nrobinso <nrobinso@student.42.fr>          +#+  +:+       +#+        */
+/*                                                +#+#+#+#+#+   +#+           */
+/*   Created: 2026/04/17 13:51:57 by nrobinso          #+#    #+#             */
+/*   Updated: 2026/04/21 17:14:26 by nrobinso         ###   ########.fr       */
+/*                                                                            */
+/* ************************************************************************** */
+
+#include "tools.h"
+#include "uart_lib.h"
+typedef unsigned char uint8_t;      // needed because not using stdlib
+
+
+
+bool is_upper(unsigned char c) {
+
+    if (c >= 'A' && c <= 'Z') {
+        return (1);
+    }
+    return (0);
+}
+
+unsigned char to_upper(unsigned char c) {
+
+    if (c >= 'a' && c <= 'z') {
+        c -= 32;   
+    }
+    return c;
+}
+
+unsigned char to_lower(unsigned char c) {
+
+    if (c >= 'A' && c <= 'Z') {
+        c += 32;   
+    }
+    return c;
+}
+
+unsigned char inverse_char(unsigned char c) {
+
+    if (is_upper(c))
+        c = to_lower(c);
+    else {
+        c = to_upper(c);
+    }
+    return (c);
+}
+
+
+bool notPrintable(unsigned char c) {
+    if (c == 0x7F || c == '\r')
+        return (0);
+    if (c < ' ' || c > '~')
+        return (1);
+    return (0);
+}
+
+
+bool checkChar(unsigned char c) {
+    
+    if (c == '\t' || c =='\b')
+        return (1);
+    return (0);
+}
+
+
+int ft_strlen(unsigned char *str) {
+    
+    int i = 0;
+    if (!str)
+        return (0);
+    while (str && str[i])
+        i++;
+    return (i);
+}
+
+
+bool ft_strcmp(unsigned char *str, unsigned char *name) {
+
+    int i = 0;
+
+    if (ft_strlen(str) != ft_strlen(name))
+        return(0);
+    if (str[0] == '\0') 
+        return (1);
+
+    while (name[i] != '\0') {
+
+        if (str[i] != name[i])
+            return (0);
+        i++;
+    } 
+    
+    return (1);
+}
+
+/// NOTE: function chhecks the size of the string aginst size
+/// ARGS: char* str to be checked, unit8_t size to compare 
+/// RETURNS: 0 - false, 1 - true if string is the length found in size 
+
+bool is_len_size(unsigned char *str, int size) {
+
+    if (!str)
+        return (0);
+    if (ft_strlen(str) == size)
+        return (1);
+    return (0);
+}
+
+
+/// NOTE: function checks first char in a string
+/// ARGS: char* str to be checked, char to compare with
+/// RETURNS: 0 - false, 1 - true
+
+bool is_first_char(unsigned char *str, unsigned char c) {
+
+    if (!str)
+        return (0);
+    if (str && str[0] == c)
+        return (1);
+    return (0);
+}
+
+
+/// NOTE: function checks the chars are valid HEX in the string
+/// ARGS: char* str
+/// RETURNS: 0 - false, 1 - true
+
+bool is_valid_hex_str(unsigned char *str) {
+    
+    int i = 1;
+    if (!str)
+        return (0);
+
+    while (str[i]) {
+
+        if (!((str[i] >= '0' && str[i] <= '9') 
+            || (str[i] >= 'a' 
+            && str[i] <= 'f')))
+                return (0);
+        i++;
+    }
+    return (1);
+}
+
+
+/// NOTE: function splits a string into 2 Chars in function of stating position
+/// ARGS: pointer string to split, pointer to hex dest, int start point
+/// RETURNS: nothing 
+
+void split_hex(unsigned char *str, unsigned char *hex, int start_pos) {
+
+    int i = 0;
+    int y = 1;
+    int stop = start_pos + 2;
+    unsigned char *dest;
+    dest = hex;
+    while (str && str[y]){
+        
+        dest[i] = str[start_pos + 1];
+        i++;
+        y++;
+        start_pos++;
+        if (start_pos == stop)
+            break;   
+    }
+    dest[i] = '\0';
+    // uart_printstr((volatile char*)"\n\rdest-split{");
+    // uart_printstr((volatile char*)hex);
+    // uart_printstr((volatile char*)"}\r\n");    
+}
+
+/// NOTE: function check if a digit
+/// ARGS: a character
+/// RETURNS: 0 - false, 1 - true
+
+bool is_digit(unsigned char c) {
+
+    if (c >= '0' && c <= '9') {
+        return (1);
+    }
+    return (0);
+}
+
+
+/// NOTE: function converts from hex 0xFF to decimal (only two heximals FF)
+/// ARG:  unsigned char* pointer
+/// RETURNS: unit8_t 8 bits
+/// REF: - str not protected in size. undefined result if under or over size string 
+
+uint8_t convert_from_hex(unsigned char *str) {
+
+    volatile int i = 0;
+    volatile uint8_t high_end = 0;
+    volatile uint8_t low_end = 0;
+    volatile uint8_t res = 0;
+    
+    if (!str)
+        return (0);
+
+    while (str && str[i]) {
+
+        if (i == 0) {
+            if (is_digit(str[i])) {
+                high_end = (str[i] - '0');      // high nibble × 16
+            } else if (str[i] >= 'a' && str[i] <= 'f') {
+                high_end = (str[i] - 'a') + 10;
+            }
+        }
+
+        if  (i == 1) {
+                if (is_digit(str[i]))
+                    low_end += (str[i] - '0');            // low nibble, no multiplier
+                else if (str[i] >= 'a' && str[i] <= 'f')
+                    low_end += (str[i] - 'a') + 10;
+            }
+            i++;
+        }
+        res = (((high_end) * 16) + low_end);
+    return res;
+}
