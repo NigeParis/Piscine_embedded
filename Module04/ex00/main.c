@@ -6,7 +6,7 @@
 /*   By: nrobinso <nrobinso@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/04/13 15:41:53 by nrobinso          #+#    #+#             */
-/*   Updated: 2026/04/22 17:59:31 by nrobinso         ###   ########.fr       */
+/*   Updated: 2026/04/22 19:33:13 by nrobinso         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -37,10 +37,10 @@ void timer_init_timer1() {
     
     SREG |= (1 << 7);  // ENABLE Global interupts page 20
     TCCR1A &= ~((1 << COM1A1) | (1 << COM1B1));
-    TCCR1B |= (1 << CS11) | (1 << CS10);             // prescaler 64
+    TCCR1B |= (1 << CS11) | (1 << CS10);             // prescaler 64 - page 143
     TIMSK1 |= (1 << OCIE1A);                          // enable overflow - fires vector_11
-    TIFR1 |= (1 << OCF1A);
-    TCNT1 = 50100;
+    // TIFR1 |= (1 << OCF1A);
+    // TCNT1 = 50100;
     
 }
 
