@@ -6,7 +6,7 @@
 /*   By: nrobinso <nrobinso@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/04/13 15:41:53 by nrobinso          #+#    #+#             */
-/*   Updated: 2026/04/23 12:33:20 by nrobinso         ###   ########.fr       */
+/*   Updated: 2026/04/23 12:42:57 by nrobinso         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -19,7 +19,6 @@ volatile uint16_t dutycycle = 0;                    // duty cycle 0 to 100
     
 typedef unsigned char uint8_t;                      // needed because not using stdlib
 #define CALIBRATE 4000                              // synic flasher in vector 14    
-#define LOW 0                                       // PD4 or PD2 pressed
 #define LED2_MASK (1 << PB1)                        // PB1 mask select
 #define PRESCALER 8                                 // SYNIC with CS11 p143 ref: DataSheet
 #define TIME_FREQUENCY (F_CPU / PRESCALER) / 100    // MAX Value to be stored 
