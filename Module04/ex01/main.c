@@ -6,7 +6,7 @@
 /*   By: nrobinso <nrobinso@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/04/13 15:41:53 by nrobinso          #+#    #+#             */
-/*   Updated: 2026/04/23 12:27:30 by nrobinso         ###   ########.fr       */
+/*   Updated: 2026/04/23 12:33:20 by nrobinso         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -22,12 +22,10 @@ typedef unsigned char uint8_t;                      // needed because not using 
 #define LOW 0                                       // PD4 or PD2 pressed
 #define LED2_MASK (1 << PB1)                        // PB1 mask select
 #define PRESCALER 8                                 // SYNIC with CS11 p143 ref: DataSheet
-#define TIME_FREQUENCY (F_CPU / PRESCALER) / 100    // MAX Value to be stored in OCR1A
-                                                    // page 129 on datasheet
+#define TIME_FREQUENCY (F_CPU / PRESCALER) / 100    // MAX Value to be stored 
+                                                    // in OCR1A age 129 on datasheet
+                                                    // (16000000 / 8) / 100 = 20000 = OK
                                                     // 16 bits = 65565 max
-                                                    // 16M/8/1 = 2000000 > 65535 too much
-                                                    // 16M/16/1 = 1000000 > 65535 too much
-                                                    // 16M/256/1 = 62500 < 65535 OK
 
 
 /// NOTE: function calculates new value for led 
