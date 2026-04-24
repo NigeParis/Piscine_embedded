@@ -6,7 +6,7 @@
 /*   By: nrobinso <nrobinso@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/04/13 15:41:53 by nrobinso          #+#    #+#             */
-/*   Updated: 2026/04/24 19:53:52 by nrobinso         ###   ########.fr       */
+/*   Updated: 2026/04/24 20:09:56 by nrobinso         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -21,9 +21,29 @@
 typedef unsigned char uint8_t;      // needed because not using stdlib
 volatile char hex[3];               // global for function toHex()
 
+
 void adc_getReading(void(*callback)()) {
     callback();    
 }
+
+
+
+void putnbr(uint16_t nbr){
+
+    (void)nbr;
+    
+    
+    if (nbr > 9)  {
+        putnbr(nbr / 10);
+    }
+    uart_tx(((nbr % 10) + '0'));
+   
+}
+
+
+
+
+
 
 
 int main(void) {
@@ -35,7 +55,7 @@ int main(void) {
     adc_init(); 
     uart_printstr("connected to the AtMega328P Board ...\r\n");        
 
-    
+    uint16_t i = 0;
     while (1) { 
         
         adc_getReading(adc_init_pot);
@@ -71,7 +91,7 @@ int main(void) {
         
         _delay_ms(20);
         uart_printstr(result);
-    
+        putnbr(1+(i++));
     }
 
 }
