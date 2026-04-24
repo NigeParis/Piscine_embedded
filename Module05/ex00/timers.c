@@ -6,7 +6,7 @@
 /*   By: nrobinso <nrobinso@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/04/20 14:15:38 by nrobinso          #+#    #+#             */
-/*   Updated: 2026/04/23 17:37:41 by nrobinso         ###   ########.fr       */
+/*   Updated: 2026/04/20 16:05:41 by nrobinso         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -25,10 +25,6 @@ void timer_init_timer0(void) {
             | (1 << CS01);  // CS01 + C00  - page 117 datasheet
  }
 
-
-
-
- 
 /// NOTE: Timer 2 after Schema and page 162 in the datasheet
 
 void timer_init_timer2(void) {
