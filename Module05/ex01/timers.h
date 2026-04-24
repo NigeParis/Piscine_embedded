@@ -1,21 +1,20 @@
 /* ************************************************************************** */
 /*                                                                            */
 /*                                                        :::      ::::::::   */
-/*   adc_lib.h                                          :+:      :+:    :+:   */
+/*   timers.h                                           :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
 /*   By: nrobinso <nrobinso@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
-/*   Created: 2026/04/24 12:55:04 by nrobinso          #+#    #+#             */
-/*   Updated: 2026/04/24 17:31:22 by nrobinso         ###   ########.fr       */
+/*   Created: 2026/04/20 14:15:41 by nrobinso          #+#    #+#             */
+/*   Updated: 2026/04/21 18:00:39 by nrobinso         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
-#ifndef ADC_LIB_H
- #define ADC_LIB_H
-
-    void adc_init_ldr(void);
-    void adc_init_pot(void);
-    void adc_tx(volatile unsigned char c);
-    unsigned char adc_rx(void);
+#ifndef TIMERS_H
+ #define TIMERS_H
+ 
+    void timer_init_timer0(void);
+    void timer_init_timer2(void);
+    void stop_timers(void);
 
 #endif

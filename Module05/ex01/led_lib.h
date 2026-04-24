@@ -1,21 +1,23 @@
 /* ************************************************************************** */
 /*                                                                            */
 /*                                                        :::      ::::::::   */
-/*   adc_lib.h                                          :+:      :+:    :+:   */
+/*   led_lib.h                                          :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
 /*   By: nrobinso <nrobinso@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
-/*   Created: 2026/04/24 12:55:04 by nrobinso          #+#    #+#             */
-/*   Updated: 2026/04/24 17:31:22 by nrobinso         ###   ########.fr       */
+/*   Created: 2026/04/19 09:11:22 by nrobinso          #+#    #+#             */
+/*   Updated: 2026/04/20 14:32:45 by nrobinso         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
-#ifndef ADC_LIB_H
- #define ADC_LIB_H
+#ifndef LED_LIB_H
+# define LED_LIB_H
 
-    void adc_init_ldr(void);
-    void adc_init_pot(void);
-    void adc_tx(volatile unsigned char c);
-    unsigned char adc_rx(void);
+    void Blink(uint8_t led);
+    void StopBlink(uint8_t led);
+    void set_rgb(uint8_t r, uint8_t g, uint8_t b);
+    void init_rgb(void);
+    void wheel(uint8_t pos);
+
 
 #endif

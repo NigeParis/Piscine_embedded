@@ -6,7 +6,7 @@
 /*   By: nrobinso <nrobinso@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/04/24 12:53:23 by nrobinso          #+#    #+#             */
-/*   Updated: 2026/04/24 18:22:18 by nrobinso         ###   ########.fr       */
+/*   Updated: 2026/04/24 18:03:46 by nrobinso         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -45,9 +45,23 @@ void adc_tx(volatile unsigned char c)
 unsigned char adc_rx(void) {
     
     unsigned char c;
-    ADCSRA |= (1 << ADSC);                              // page 258 / 24.9.2 start conversion
+    // ADCSRA |= (1 << ADSC);                              // page 258 / 24.9.2 start conversion
     while (!(ADCSRA & (1 << ADSC)) == 0) ;              // Recieve data Flag - page 200
     c = ADCH;                                           // receive data
     return (c);                                         // return c
 }
+
+
+/// NOTE: initiates the Light Dependent Resistor, pin PC1
+/// ARGS: None
+/// RETURNS: None
+
+void adc_init_ldr(void) {
+        
+    // ADMUX |= (1 << REFS0) | (1 << ADLAR);                           // PAGE 257 - LEFT ADJUST (ADLAF) and AVCC set with REFS0
+    ADMUX &= ~((1 << MUX3) |(1 << MUX2)|(1 << MUX1));               // PAGE 258 - ADC0 set bits (1 to 3) to 0 for PC1
+    ADMUX |= (1 << MUX0);                                          // and set bit 0 to 1 for PC1
+    // ADCSRA |= (1 << ADEN) | (1 << ADPS2)| (1 << ADPS0);             // PAGE 258 - Enable ADC (ADEN) - Division Factor 32 
+}
+
 
