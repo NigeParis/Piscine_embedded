@@ -6,12 +6,14 @@
 /*   By: nrobinso <nrobinso@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/04/24 12:53:23 by nrobinso          #+#    #+#             */
-/*   Updated: 2026/04/25 10:51:04 by nrobinso         ###   ########.fr       */
+/*   Updated: 2026/04/25 11:42:30 by nrobinso         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "adc_lib.h"
 #include <avr/io.h>
+
+typedef unsigned int uint16_t;      // needed because not using stdlib
 
 
 /// NOTE: function sends (tx) to screen a char 
@@ -94,6 +96,20 @@ void adc_init_pot(void) {
 }
 
 
+
+/// NOTE: function receives (Rx) a char from ADC full 10 bits - page  259
+/// ARGS: None
+/// RETURNS: uint16_t from ADC - 10 bit (ADLAR is set to 0)
+/// NEEDS: to be initiated with ADCSRA and ADMUX see page 258
+
+uint16_t adc_10_bit_rx(void) {
+    
+    uint16_t c;
+    ADCSRA |= (1 << ADSC);                              // page 258 / 24.9.2 start conversion
+    while (!(ADCSRA & (1 << ADSC)) == 0) ;              // Recieve data Flag - page 200
+    c = ADC;                                           // receive data
+    return (c);                                         // return c
+}
 
 
 
