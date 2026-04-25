@@ -6,7 +6,7 @@
 /*   By: nrobinso <nrobinso@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/04/13 15:41:53 by nrobinso          #+#    #+#             */
-/*   Updated: 2026/04/25 12:48:07 by nrobinso         ###   ########.fr       */
+/*   Updated: 2026/04/25 14:39:47 by nrobinso         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -18,19 +18,18 @@
 #include "uart_lib.h"
 #include "adc_lib.h"
 
-typedef unsigned char uint8_t;      // needed because not using stdlib
-typedef unsigned int uint16_t;      // needed because not using stdlib
+typedef unsigned char uint8_t;       // needed because not using stdlib
+typedef unsigned int uint16_t;       // needed because not using stdlib
 
-volatile char hex[3];               // global for function toHex()
-volatile char nbr_in_a_string[7];   // global variable for function nbr_to_str()
-volatile char pot_reading[5];   // global variable for function nbr_to_str()
-volatile char light_reading[5];   // global variable for function nbr_to_str()
-volatile char temp_reading[5];   // global variable for function nbr_to_str()
+volatile char hex[3];                // global for function toHex()
+volatile char nbr_in_a_string[7];    // global variable for function nbr_to_str()
+volatile char pot_reading[5];        // global variable for function nbr_to_str()
+volatile char light_reading[5];      // global variable for function nbr_to_str()
+volatile char temp_reading[5];       // global variable for function nbr_to_str()
 
 /// NOTE: function calls adc reading function 
 /// ARGS: function to be called
 /// RETURNS: None
-
 void adc_getReading(void(*function)()) {
     function();    
 }
@@ -39,7 +38,6 @@ void adc_getReading(void(*function)()) {
 /// NOTE: function transfers the string number collected to the correct reading string
 /// ARGS: pointer to string, pointer to target
 /// RETURNS: None
-
 void ft_transfer(volatile char *nbr_in_a_string, volatile char *reading) {
 
     int i = 0;
@@ -49,9 +47,7 @@ void ft_transfer(volatile char *nbr_in_a_string, volatile char *reading) {
         i++;
     }
     reading[i] = '\0';
-
 }
-
 
 
 int main(void) {
@@ -74,8 +70,6 @@ int main(void) {
         uart_printstr(temp_reading);                            // output reading
         uart_printstr("ºC");
         uart_printstr("\r\n");
-
     }
-
 }
     

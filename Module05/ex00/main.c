@@ -6,7 +6,7 @@
 /*   By: nrobinso <nrobinso@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/04/13 15:41:53 by nrobinso          #+#    #+#             */
-/*   Updated: 2026/04/24 18:48:57 by nrobinso         ###   ########.fr       */
+/*   Updated: 2026/04/25 14:43:21 by nrobinso         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -40,7 +40,7 @@ int main(void) {
     
     uart_Init();                     // initiate uarts connection
     adc_init(); 
-    uart_printstr("connected to the AtMega328P Board ...\r\n");        
+    uart_printstr("connected to the AtMega328P Board ...\r\n\n\n");        
 
     while (1) { 
         

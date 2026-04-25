@@ -6,7 +6,7 @@
 /*   By: nrobinso <nrobinso@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/04/13 15:41:53 by nrobinso          #+#    #+#             */
-/*   Updated: 2026/04/25 11:45:51 by nrobinso         ###   ########.fr       */
+/*   Updated: 2026/04/25 14:42:24 by nrobinso         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -27,14 +27,9 @@ volatile char pot_reading[5];   // global variable for function nbr_to_str()
 volatile char light_reading[5];   // global variable for function nbr_to_str()
 volatile char temp_reading[5];   // global variable for function nbr_to_str()
 
-
-
 void adc_getReading(void(*function)()) {
     function();    
 }
-
-
-
 
 void ft_transfer(volatile char *nbr_in_a_string, volatile char *reading) {
 
@@ -45,7 +40,6 @@ void ft_transfer(volatile char *nbr_in_a_string, volatile char *reading) {
         i++;
     }
     reading[i] = '\0';
-
 }
 
 
@@ -57,7 +51,7 @@ int main(void) {
     
     uart_Init();                     // initiate uarts connection
     adc_init_10_bit(); 
-    uart_printstr("connected to the AtMega328P Board ...\r\n");        
+    uart_printstr("connected to the AtMega328P Board ...\r\n\n\n");        
 
     while (1) { 
         

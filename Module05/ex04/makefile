@@ -6,14 +6,14 @@
 #    By: nrobinso <nrobinso@student.42.fr>          +#+  +:+       +#+         #
 #                                                 +#+#+#+#+#+   +#+            #
 #    Created: 2026/04/13 13:45:55 by nrobinso          #+#    #+#              #
-#    Updated: 2026/04/24 16:46:39 by nrobinso         ###   ########.fr        #
+#    Updated: 2026/04/25 14:36:57 by nrobinso         ###   ########.fr        #
 #                                                                              #
 # **************************************************************************** #
 
 # ------------------------- project -------------------------------------------
 NAME=main
 TOOLS=tools.c
-LIB=uart_lib.c config.h adc_lib.c #led_lib.c  timers.c
+LIB=uart_lib.c adc_lib.c led_lib.c timers.c
 
 # ------------------------- compiler ------------------------------------------
 CC=avr-gcc
@@ -37,7 +37,7 @@ FLASH_IN_OUT= -U flash:w:$(NAME).hex:i
 
 # ------------------------- Rules ---------------------------------------------
 all: hex flash
-	@screen /dev/ttyUSB0 115200
+# 	@screen /dev/ttyUSB0 115200
 
 hex:
 	$(CC) $(CFLAGS) -DF_CPU=$(F_CPU) -Os -o $(NAME).bin $(NAME).c $(TOOLS) $(LIB)
