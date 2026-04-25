@@ -6,7 +6,7 @@
 /*   By: nrobinso <nrobinso@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/04/24 12:55:04 by nrobinso          #+#    #+#             */
-/*   Updated: 2026/04/24 19:37:51 by nrobinso         ###   ########.fr       */
+/*   Updated: 2026/04/25 10:09:58 by nrobinso         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -19,7 +19,7 @@
     void adc_init_ntc(void);
     void adc_tx(volatile unsigned char c);
     unsigned char adc_rx(void);
-
+    void adc_init_10_bit(void);
 
 
 #endif

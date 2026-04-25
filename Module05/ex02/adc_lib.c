@@ -6,7 +6,7 @@
 /*   By: nrobinso <nrobinso@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/04/24 12:53:23 by nrobinso          #+#    #+#             */
-/*   Updated: 2026/04/24 19:44:09 by nrobinso         ###   ########.fr       */
+/*   Updated: 2026/04/25 10:51:04 by nrobinso         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -48,8 +48,18 @@ unsigned char adc_rx(void) {
 void adc_init(void) {
     
     ADMUX |= (1 << REFS0) | (1 << ADLAR);                           // PAGE 257 - LEFT ADJUST (ADLAF) and AVCC set with REFS0
-    ADCSRA |= (1 << ADEN) | (1 << ADPS2)| (1 << ADPS0);             // PAGE 258 - Enable ADC (ADEN) - Division Factor 32 
+    ADCSRA |= (1 << ADEN) | (1 << ADPS0)| (1 << ADPS2);             // PAGE 258 - Enable ADC (ADEN) - Division Factor 32 
 }
+
+
+void adc_init_10_bit(void) {
+    
+    ADMUX |= (1 << REFS0);                           // PAGE 257 - NO ADJUST (ADLAF) and AVCC set with REFS0 10 bit
+    ADMUX &= ~(1 << ADLAR);                           // PAGE 257 - NO LEFT ADJUST (ADLAF) and AVCC set with REFS0
+    ADCSRA |= (1 << ADEN) | (1 << ADPS0)| (1 << ADPS2);             // PAGE 258 - Enable ADC (ADEN) - Division Factor 32 
+}
+
+
 
 
 /// NOTE: initiates the Temperature sensor, pin PC2
