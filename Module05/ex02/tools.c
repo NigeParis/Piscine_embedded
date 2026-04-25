@@ -6,16 +6,17 @@
 /*   By: nrobinso <nrobinso@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/04/17 13:51:57 by nrobinso          #+#    #+#             */
-/*   Updated: 2026/04/24 17:25:49 by nrobinso         ###   ########.fr       */
+/*   Updated: 2026/04/25 09:50:26 by nrobinso         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "tools.h"
 #include "uart_lib.h"
 typedef unsigned char uint8_t;      // needed because not using stdlib
+typedef unsigned int uint16_t;      // needed because not using stdlib
 
-extern volatile char hex[3];        // global for function toHex()
-
+extern volatile char hex[3];                // global variable for function toHex()
+extern volatile char nbr_in_a_string[7];    // global variable for function nbr_to_str()
 
 
 
@@ -261,5 +262,76 @@ void toHex(unsigned char c) {
         hex[1] = low + 87;
      
 }
+
+
+uint16_t ft_nbrlen(volatile char *str) {
+
+    uint16_t len = 0;
+
+    while (str[len] != '\0') {
+        len++;
+    }
+    return len;
+}
+
+void reverseNumString(volatile char *str) {
+
+    uint16_t stop = 0;
+    int i = 0;
+    stop = ft_nbrlen(str);
+    char newstr[stop + 1];
+
+    while (str[i] != '\0') {
+        newstr[i] = str[stop - 1];
+        i++;
+        stop--;
+    }
+    newstr[i] = '\0';
+    i = 0;
+    stop = ft_nbrlen(str);
+    while (stop > 0) {
+            str[i] = newstr[i]; 
+            i++;
+            stop--;
+    }
+    str[i] = '\0';
+}
+
+void nbr_to_str (uint16_t nbr) {
+
+    ft_itoa(nbr,-1);
+    reverseNumString(nbr_in_a_string);
+
+}
+
+void ft_itoa(uint16_t nbr, int index){
+
+    int i = index;
+
+    if (nbr < 9) {
+        i++;
+        nbr_in_a_string[i] = (nbr % 10) + '0';
+        i++;
+        nbr_in_a_string[i] = '\0';
+        return;
+    }
+    i++;
+    if (nbr > 9)  {
+        ft_itoa(nbr / 10, i);
+    }
+    // uart_tx(((nbr % 10) + '0'));
+    nbr_in_a_string[i] = (nbr % 10) + '0';
+}
+
+
+
+void putnbr(uint16_t nbr){
+
+    if (nbr > 9)  {
+        putnbr(nbr / 10);
+    }
+    uart_tx(((nbr % 10) + '0'));
+}
+
 
 

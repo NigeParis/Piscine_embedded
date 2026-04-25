@@ -6,7 +6,7 @@
 /*   By: nrobinso <nrobinso@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/04/13 15:41:53 by nrobinso          #+#    #+#             */
-/*   Updated: 2026/04/24 20:09:56 by nrobinso         ###   ########.fr       */
+/*   Updated: 2026/04/25 09:50:18 by nrobinso         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -19,25 +19,15 @@
 #include "adc_lib.h"
 
 typedef unsigned char uint8_t;      // needed because not using stdlib
+typedef unsigned int uint16_t;      // needed because not using stdlib
+
 volatile char hex[3];               // global for function toHex()
-
-
-void adc_getReading(void(*callback)()) {
-    callback();    
-}
+volatile char nbr_in_a_string[7];   // global variable for function nbr_to_str()
 
 
 
-void putnbr(uint16_t nbr){
-
-    (void)nbr;
-    
-    
-    if (nbr > 9)  {
-        putnbr(nbr / 10);
-    }
-    uart_tx(((nbr % 10) + '0'));
-   
+void adc_getReading(void(*function)()) {
+    function();    
 }
 
 
@@ -55,7 +45,7 @@ int main(void) {
     adc_init(); 
     uart_printstr("connected to the AtMega328P Board ...\r\n");        
 
-    uint16_t i = 0;
+    // uint16_t i = 0;
     while (1) { 
         
         adc_getReading(adc_init_pot);
@@ -91,7 +81,11 @@ int main(void) {
         
         _delay_ms(20);
         uart_printstr(result);
-        putnbr(1+(i++));
+        nbr_to_str(1024);
+        uart_printstr("\"");
+        uart_printstr(nbr_in_a_string);
+        uart_printstr("\"");
+        uart_printstr("\r\n");
     }
 
 }
