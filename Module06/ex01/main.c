@@ -6,7 +6,7 @@
 /*   By: nrobinso <nrobinso@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/04/13 15:41:53 by nrobinso          #+#    #+#             */
-/*   Updated: 2026/04/26 17:44:01 by nrobinso         ###   ########.fr       */
+/*   Updated: 2026/04/26 19:37:14 by nrobinso         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -41,30 +41,72 @@ volatile char pot_reading[5];   // global variable for function nbr_to_str()
 ///                             16 + 2(TWBR) * PrescalerValue 
 
 
-/// NOTE: function set pins D1 to D$ for output
-/// ARGS: string label of the pin 'D?' 
-/// RETURNS: None
-void SetPinOutput(char *str) {
 
-    if (str[0] == 'D') {
+void i2c_tx(volatile unsigned char c);
+void i2c_init();
+void i2c_start();
+void i2c_stop();
+void i2c_tx(volatile unsigned char c);
 
-        if (str[1] == '1') 
-            DDRB |= (1 << PB0);
-        if (str[1] == '2') 
-            DDRB |= (1 << PB1);
-        if (str[1] == '3') 
-            DDRB |= (1 << PB2);
-        if (str[1] == '4') 
-            DDRB |= (1 << PB4);
-        if (str[1] == '5') { 
-            DDRD |= (1 << PD3);  // BLUE
-            DDRD |= (1 << PD5);  // RED
-            DDRD |= (1 << PD6);  // GREEN
-        }            
-    }   
+
+
+
+
+unsigned char i2c_rx(void) {
+    
+    unsigned char c;
+    while ((TWCR |(1 << TWINT)))
+        ;    
+    c = TWDR;                                           // receive data
+    return (c);                                         // return c
 }
 
+uint8_t read_sensor(void) {
 
+	TWCR |= (1 << TWINT) |( 1 << TWEN) | (1 << TWEA);
+
+	while (!(TWCR & (1 << TWINT)))
+		;
+	uint8_t data = TWDR;
+	return data;	
+
+		
+}
+
+#define AHT20_ADDRESS 0x38
+unsigned char status;
+
+int main(void) {
+    uart_init();
+    
+    i2c_init();
+    _delay_ms(100);
+    i2c_start();        
+    i2c_tx((AHT20_ADDRESS << 1) | 0);    
+    _delay_ms(10);
+    i2c_tx(0xAC);    
+    i2c_tx(0x33);    
+    i2c_tx(0x00);
+    i2c_stop();
+    i2c_start();
+    i2c_tx((AHT20_ADDRESS << 1) | 1);    
+    _delay_ms(80);      
+	
+	putnbr((uint16_t)(read_sensor()));
+
+	
+	
+
+
+
+
+
+
+
+    
+    while (1) { }
+}
+    
 
 
 
@@ -104,35 +146,9 @@ void i2c_tx(volatile unsigned char c)
     TWCR = (1 << TWINT) | (1 << TWEN);
     while (!(TWCR &(1 << TWINT)))
     ;
-    toHex(TW_STATUS);                                       // Put data into buffer, sends the data
     printStatus_i2c();      
 }
 
-
-
-unsigned char i2c_rx(void) {
-    
-    unsigned char c;
-    while ((TWCR |(1 << TWINT)))
-        ;    
-    c = TWDR;                                           // receive data
-    return (c);                                         // return c
-}
-
-#define AHT20_ADDRESS 0x38
-
-
-int main(void) {
-    uart_init();
-    
-    i2c_init();
-    i2c_start();        
-    i2c_tx((AHT20_ADDRESS << 1) | 0);    
-    i2c_stop();
-    
-    while (1) { }
-}
-    
 
 
 
