@@ -6,14 +6,14 @@
 #    By: nrobinso <nrobinso@student.42.fr>          +#+  +:+       +#+         #
 #                                                 +#+#+#+#+#+   +#+            #
 #    Created: 2026/04/13 13:45:55 by nrobinso          #+#    #+#              #
-#    Updated: 2026/04/26 17:24:09 by nrobinso         ###   ########.fr        #
+#    Updated: 2026/04/27 17:56:00 by nrobinso         ###   ########.fr        #
 #                                                                              #
 # **************************************************************************** #
 
 # ------------------------- project -------------------------------------------
 NAME=main
 TOOLS=tools.c
-LIB=uart_lib.c adc_lib.c led_lib.c timers.c
+LIB=uart_lib.c #adc_lib.c led_lib.c timers.c
 
 # ------------------------- compiler ------------------------------------------
 CC=avr-gcc

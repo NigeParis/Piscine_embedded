@@ -6,7 +6,7 @@
 /*   By: nrobinso <nrobinso@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/04/13 15:41:53 by nrobinso          #+#    #+#             */
-/*   Updated: 2026/04/27 13:09:35 by nrobinso         ###   ########.fr       */
+/*   Updated: 2026/04/27 17:59:00 by nrobinso         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -16,9 +16,6 @@
 #include <util/twi.h>
 
 #include "tools.h"
-#include "adc_lib.h"
-#include "led_lib.h"
-#include "timers.h"
 #include "uart_lib.h"
 
 

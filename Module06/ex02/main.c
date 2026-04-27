@@ -6,20 +6,16 @@
 /*   By: nrobinso <nrobinso@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/04/13 15:41:53 by nrobinso          #+#    #+#             */
-/*   Updated: 2026/04/27 17:43:56 by nrobinso         ###   ########.fr       */
+/*   Updated: 2026/04/27 17:52:35 by nrobinso         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include <stdlib.h>       // for the function dtostrf()
 #include <avr/io.h>
 #include <util/delay.h>
-#include <avr/interrupt.h>
 #include <util/twi.h>
 
 #include "tools.h"
-#include "adc_lib.h"
-#include "led_lib.h"
-#include "timers.h"
 #include "uart_lib.h"
 #include "i2c_lib.h"
 
@@ -33,8 +29,6 @@ volatile char hex[3];               // global for function toHex()
 volatile char nbr_in_a_string[7];   // global variable for function nbr_to_str()
 volatile char pot_reading[5];       // global variable for function nbr_to_str()
 volatile uint8_t data_raw[7];               // data raw storage
-volatile uint8_t data_average[21];               // data raw storage
-volatile uint8_t data_calulated[7];               // data raw storage
 volatile uint32_t average_raw_temp;               // data raw storage
 volatile uint32_t average_raw_humid;               // data raw storage
 float tempC;
@@ -61,24 +55,15 @@ struct data_input {     //  structure to hold raw data
 
 struct data_input rawData[3];
 
-// void i2c_init();
-// void i2c_start();
-// void i2c_stop();
-// void i2c_write(volatile unsigned char c);
-// void printStatus_i2c(void);
-// void i2c_write(volatile unsigned char data);
-
-
-
 /// NOTE: function reads the data from AHT20 senor 7 bytes of data
 /// prints it out to screen using uart_printstr
 /// ARGS: None
 /// RETURNS: None
 
 void i2c_read(void) {
-    i2c_write((AHT20_ADDRESS << 1) | 1);    
+    i2c_write((AHT20_ADDRESS << 1) | 1);                    // read mode  
     for (int i = 0; i < 7; i++) {
-        TWCR |= (1 << TWINT) |( 1 << TWEN) | (1 << TWEA);
+        TWCR |= (1 << TWINT) |( 1 << TWEN) | (1 << TWEA);   // page 226 datasheet - import TWEA reads data
         
         while (!(TWCR & (1 << TWINT)))
 		        ;
@@ -87,13 +72,15 @@ void i2c_read(void) {
             printStatus_i2c();
     }
 
+    ///NOTE: place raw data instructure[count
+    
     rawData[count].state = data_raw[0];
     uint32_t humidity_highend = (uint32_t)data_raw[1] << 16; 
     uint32_t humidity_midend = (uint32_t)data_raw[2] << 8; 
     uint32_t humidity_lowend = (uint32_t)data_raw[3]; 
-    rawData[count].humidity = ((humidity_highend | humidity_midend | humidity_lowend) >> 4); 
-    uint32_t highend_nibble = (uint32_t)data_raw[3] & 0x0F; 
-    uint32_t temperature_highend = (uint32_t)highend_nibble << 16; 
+    rawData[count].humidity = ((humidity_highend | humidity_midend | humidity_lowend) >> 4);    // shift right of 4
+    uint32_t highend_nibble = (uint32_t)data_raw[3] & 0x0F;                                     // get four bits xxxxFFFF
+    uint32_t temperature_highend = (uint32_t)highend_nibble << 16;
     uint32_t temperature_midend = (uint32_t)data_raw[4] << 8; 
     uint32_t temperature_lowend = (uint32_t)data_raw[5];     
     rawData[count].temperature = ((temperature_highend | temperature_midend | temperature_lowend)); 
