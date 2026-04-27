@@ -6,7 +6,7 @@
 /*   By: nrobinso <nrobinso@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/04/17 13:56:57 by nrobinso          #+#    #+#             */
-/*   Updated: 2026/04/25 09:50:41 by nrobinso         ###   ########.fr       */
+/*   Updated: 2026/04/27 17:41:31 by nrobinso         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -14,6 +14,7 @@
     # define TOOLS_H
     typedef unsigned char uint8_t;      // needed because not using stdlib
     typedef unsigned int uint16_t;      // needed because not using stdlib
+    #include <avr/io.h>
 
 
     bool is_upper(unsigned char c);
@@ -36,6 +37,8 @@
     uint16_t ft_nbrlen(volatile char *str);
     void nbr_to_str (uint16_t nbr);
     void putnbr(uint16_t nbr);
+    void putnbr_32t(uint32_t nbr);
+    void print_hex_value(char c);
 
 
 #endif 

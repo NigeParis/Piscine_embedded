@@ -6,10 +6,11 @@
 /*   By: nrobinso <nrobinso@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/04/17 13:51:57 by nrobinso          #+#    #+#             */
-/*   Updated: 2026/04/25 11:44:27 by nrobinso         ###   ########.fr       */
+/*   Updated: 2026/04/27 17:41:15 by nrobinso         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
+#include <avr/io.h>
 #include "tools.h"
 #include "uart_lib.h"
 typedef unsigned char uint8_t;      // needed because not using stdlib
@@ -335,3 +336,21 @@ void putnbr(uint16_t nbr){
 
 
 
+void putnbr_32t(uint32_t nbr){
+
+    if (nbr > 9)  {
+        putnbr(nbr / 10);
+    }
+    uart_tx(((nbr % 10) + '0'));
+}
+
+
+
+/// NOTE: prints value in 0xFF to screen with uart lib
+/// ARGS: char
+/// RETURNS: None
+
+void print_hex_value(char c) {
+        toHex(c);
+        uart_printstr(hex);
+}

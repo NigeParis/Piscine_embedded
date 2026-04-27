@@ -6,10 +6,11 @@
 /*   By: nrobinso <nrobinso@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/04/13 15:41:53 by nrobinso          #+#    #+#             */
-/*   Updated: 2026/04/27 11:52:17 by nrobinso         ###   ########.fr       */
+/*   Updated: 2026/04/27 17:43:56 by nrobinso         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
+#include <stdlib.h>       // for the function dtostrf()
 #include <avr/io.h>
 #include <util/delay.h>
 #include <avr/interrupt.h>
@@ -20,7 +21,7 @@
 #include "led_lib.h"
 #include "timers.h"
 #include "uart_lib.h"
-
+#include "i2c_lib.h"
 
 
 #define AHT20_ADDRESS 0x38          // address i2c of sensor AHT20 - doc ASAIR page 8
@@ -30,7 +31,14 @@ typedef unsigned int uint16_t;      // needed because not using stdlib
 
 volatile char hex[3];               // global for function toHex()
 volatile char nbr_in_a_string[7];   // global variable for function nbr_to_str()
-volatile char pot_reading[5];   // global variable for function nbr_to_str()
+volatile char pot_reading[5];       // global variable for function nbr_to_str()
+volatile uint8_t data_raw[7];               // data raw storage
+volatile uint8_t data_average[21];               // data raw storage
+volatile uint8_t data_calulated[7];               // data raw storage
+volatile uint32_t average_raw_temp;               // data raw storage
+volatile uint32_t average_raw_humid;               // data raw storage
+float tempC;
+float humidity;
 
 #define CIM_FREQ_TARGET 100000UL     // 100,000 Khz
 #define BIT_RATE_PRESCALER 1    // PAGE 241 
@@ -41,43 +49,24 @@ volatile char pot_reading[5];   // global variable for function nbr_to_str()
 ///               SCL frequency = -----------------------
 ///                             16 + 2(TWBR) * PrescalerValue 
 
+uint8_t count;          // counter for average maker
 
+struct data_input {     //  structure to hold raw data
 
-void i2c_init();
-void i2c_start();
-void i2c_stop();
-void i2c_write(volatile unsigned char c);
-void printStatus_i2c(void);
+    uint8_t state;
+    uint32_t humidity;
+    uint32_t temperature;
+    uint8_t crc; 
+}; 
 
+struct data_input rawData[3];
 
-
-
-
-unsigned char i2c_rx(void) {
-    
-    unsigned char c;
-    while ((TWCR |(1 << TWINT)))
-        ;    
-    c = TWDR;                                           // receive data
-    return (c);                                         // return c
-}
-
-
-void print_hex_value(char c) {
-        toHex(c);
-        uart_printstr(hex);
-}
-
-
-void i2c_master_write(volatile unsigned char data)
-{
-    // Wait for empty transmit buffer
-    TWDR = data;
-    TWCR = (1 << TWINT) | (1 << TWEN);
-    while (!(TWCR &(1 << TWINT)))
-    ;
-    // printStatus_i2c();      
-}
+// void i2c_init();
+// void i2c_start();
+// void i2c_stop();
+// void i2c_write(volatile unsigned char c);
+// void printStatus_i2c(void);
+// void i2c_write(volatile unsigned char data);
 
 
 
@@ -87,195 +76,82 @@ void i2c_master_write(volatile unsigned char data)
 /// RETURNS: None
 
 void i2c_read(void) {
-    i2c_start();
-    i2c_master_write((AHT20_ADDRESS << 1) | 1);    
+    i2c_write((AHT20_ADDRESS << 1) | 1);    
     for (int i = 0; i < 7; i++) {
         TWCR |= (1 << TWINT) |( 1 << TWEN) | (1 << TWEA);
         
         while (!(TWCR & (1 << TWINT)))
-		;
-        uint8_t data = TWDR;
-        print_hex_value(data);
-        if ( i < 6)
-            uart_printstr(" ");
+		        ;
+        data_raw[i] = TWDR;        
         if (TW_STATUS != 0x50)
             printStatus_i2c();
     }
-    i2c_stop();
-    uart_printstr("\r\n");    
+
+    rawData[count].state = data_raw[0];
+    uint32_t humidity_highend = (uint32_t)data_raw[1] << 16; 
+    uint32_t humidity_midend = (uint32_t)data_raw[2] << 8; 
+    uint32_t humidity_lowend = (uint32_t)data_raw[3]; 
+    rawData[count].humidity = ((humidity_highend | humidity_midend | humidity_lowend) >> 4); 
+    uint32_t highend_nibble = (uint32_t)data_raw[3] & 0x0F; 
+    uint32_t temperature_highend = (uint32_t)highend_nibble << 16; 
+    uint32_t temperature_midend = (uint32_t)data_raw[4] << 8; 
+    uint32_t temperature_lowend = (uint32_t)data_raw[5];     
+    rawData[count].temperature = ((temperature_highend | temperature_midend | temperature_lowend)); 
+    rawData[count].crc = data_raw[6];
+
+    
+    
+    if (count == 2) {
+        
+        /// NOTE: formule on page 9 of AHT20 datasheet
+        /// calculation of temp and humdity from raw data (average of 3) following the formule
+        
+        average_raw_temp = (rawData[0].temperature + rawData[1].temperature + rawData[2].temperature) / 3;       
+        tempC = ((float)average_raw_temp / 1048576.1f) * 200.1f - 50.1f;
+        
+        average_raw_humid = (rawData[0].humidity + rawData[1].humidity + rawData[2].humidity) / 3;
+        humidity = ((float)average_raw_temp / 1048576.1f) * 100.1f;
+        
+        char bufferTemp[10];
+        dtostrf(tempC, 0, 1, bufferTemp);
+        uart_printstr("Temperature: ");     
+        uart_printstr(bufferTemp);
+        uart_printstr("C,");     
+        uart_printstr(" ");    
+        
+        char bufferHum[10];
+        dtostrf(humidity, 0, 1, bufferHum);
+        uart_printstr("Humidity: ");     
+        uart_printstr(bufferHum);
+        uart_printstr("\%");     
+        uart_printstr(" ");    
+        uart_printstr("\r\n");    
+        
+        count = 0;                
+    }
 }
-
-
-
-
-
-/// NOTE: function writes
-
-void i2c_write(volatile unsigned char data) {
-
-    _delay_ms(100);
-    i2c_start();        
-    _delay_ms(10);
-    i2c_master_write((data << 1) | 0);    
-    i2c_master_write(0xAC);    
-    i2c_master_write(0x33);    
-    i2c_master_write(0x00);
-    _delay_ms(10);
-    i2c_stop();
-    _delay_ms(80);   
-}
-
-
-
 
 
 int main(void) {
     
     uart_init();
     i2c_init();
+    count  = 0;
     while (1) {
-        i2c_write(AHT20_ADDRESS);   // send AHT20 Sensor Address to start a measurement
-        i2c_read();
-    }
-}
-
-
-/// NOTE: program sets up i2c comminication
-/// ARGS: None
-/// RETURNS: None
-
-void i2c_init() {
-
-    TWSR &= ~((1 << TWPS0) | (1 << TWPS1));         //  page 241 Prescaler value set to 1 
-    TWBR = 72;                                      //  see calculation in head of file
-}
-
-
-/// NOTE: starts the i2c coms on - pin 27 and 28  (SCL - clock SDA - data) - page 225 datasheet
-/// ARGS: None
-/// RETURNS: None
-
-void i2c_start() {
-
-    TWCR |= (1 << TWEN) | (1 << TWSTA) | (1 << TWINT);          // page 226
-    while (!(TWCR &(1<<TWINT)))
-            ;
-        if ((TWSR & 0xF8) != 0x08) {
-
-            uart_printstr("Error: start - condition\r\n");
-            printStatus_i2c();
-            return ;
-        }
-  
-}
-
-/// NOTE: stop i2c coms
-/// TWSTO - page 225 datasheet
-/// ARGS: None
-/// RETURNS: None
-
-void i2c_stop() {
-    TWCR |= (1 << TWEN) | (1 << TWSTO) | (1 << TWINT);
-}
-    
-
-
-/// NOTE: code status of avr-libc
-/// <util/twi.h>: TWI bit mask definitions
-/// https://www.nongnu.org/avr-libc/user-manual/group__util__twi.html
-
-
-void printStatus_i2c(void) {
-
-    switch(TW_STATUS) {
-            
-            case 0x00:
-                    uart_printstr("0x00 -illegal start or stop condition\n\r");
-                    break;
-            case 0x08:
-                    uart_printstr("0x08 -start condition transmitted\n\r");
-                    break;
-            case 0x10:
-                    uart_printstr("0x10 -repeated start condition transmitted\n\r");
-                    break;
-            case 0x18:
-                    uart_printstr("0x18 -SLA+W transmitted, ACK received\n\r");
-                    break;
-            case 0x20:
-                    uart_printstr("0x20 -SLA+W transmitted, NACK received\n\r");
-                    break;
-            case 0x28:
-                    uart_printstr("0x28 -data transmitted, ACK received\n\r");
-                    break;
-            case 0x30:
-                    uart_printstr("0x30 -data transmitted, NACK received \n\r");
-                    break;
-            case 0x38:
-                    uart_printstr("0x38 -arbitration lost in SLA+R or NACK\n\r");
-                    break;
-            case 0x40:
-                    uart_printstr("0x40 -SLA+R transmitted, ACK received\n\r");
-                    break;
-            case 0x48:
-                    uart_printstr("0x48 -SLA+R transmitted, NACK received\n\r");
-                    break;
-            case 0x50:
-                    uart_printstr("0x50 -data received, ACK returned\n\r");
-                    break;
-            case 0x58:
-                    uart_printstr("0x58 -data received, NACK returned  \n\r");
-                    break;
-            case 0xA8:
-                    uart_printstr("0xA8 -SLA+R received, ACK returned \n\r");
-                    break;
-            case 0x88:
-                    uart_printstr("0x88 -data received, NACK returned \n\r");
-                    break;
-            case 0xB0:
-                    uart_printstr("0xB0 -arbitration lost in SLA+RW, SLA+R received, ACK returned\n\r");
-                    break;
-            case 0xB8:
-                    uart_printstr("0xB8 -data transmitted, ACK received\n\r");
-                    break;
-            case 0xC0:
-                    uart_printstr("0xC0 -data transmitted, NACK received\n\r");
-                    break;
-            case 0xC8:
-                    uart_printstr("0xC8 -last data byte transmitted, ACK received  \n\r");
-                    break;
-            case 0x60:
-                    uart_printstr("0x60 -SLA+W received, ACK returned\n\r");
-                    break;
-            case 0x68:
-                    uart_printstr("0x68 -arbitration lost in SLA+RW, SLA+W received, ACK returned\n\r");
-                    break;
-            case 0x70:
-                    uart_printstr("0x70 -general call received, ACK returned \n\r");
-                    break;
-            case 0x78:
-                    uart_printstr("0x78 -arbitration lost in SLA+RW, general call received, ACK returned  \n\r");
-                    break;
-            case 0x80:
-                    uart_printstr("0x80 -data received, ACK returned \n\r");
-                    break;
-            case 0x90:
-                    uart_printstr("0x90 -general call data received, ACK returned\n\r");
-                    break;
-            case 0x98:
-                    uart_printstr("0x98 -general call data received, NACK returned\n\r");
-                    break;
-            case 0xA0:
-                    uart_printstr("0xA0 -stop or repeated start condition received while selected\n\r");
-                    break;
         
-            case 0xf8:        
-                    uart_printstr("0xf8 -no state information available\r\n");
-                    break;
+        i2c_start();        
+        i2c_write((AHT20_ADDRESS << 1) | 0 );   // send AHT20 Sensor Address to start a measurement
+        i2c_write(0xAC);                        // start measurements  page 8 datasheet AHT20
+        i2c_write(0x33);    
+        i2c_write(0x00);
+        i2c_stop();
 
-            default : 
-                   uart_printstr("UNKNOWN\r\n");
+        i2c_start();
+        _delay_ms(80);   
+        i2c_read();
+        i2c_stop();
+        count++;        
+
     }
 }
-
-
 

@@ -1,123 +1,21 @@
 /* ************************************************************************** */
 /*                                                                            */
 /*                                                        :::      ::::::::   */
-/*   main.c                                             :+:      :+:    :+:   */
+/*   i2c_lib.c                                          :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
 /*   By: nrobinso <nrobinso@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
-/*   Created: 2026/04/13 15:41:53 by nrobinso          #+#    #+#             */
-/*   Updated: 2026/04/27 13:09:35 by nrobinso         ###   ########.fr       */
+/*   Created: 2026/04/27 17:30:36 by nrobinso          #+#    #+#             */
+/*   Updated: 2026/04/27 17:39:51 by nrobinso         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
-#include <avr/io.h>
-#include <util/delay.h>
-#include <avr/interrupt.h>
+#include "i2c_lib.h"
 #include <util/twi.h>
-
-#include "tools.h"
-#include "adc_lib.h"
-#include "led_lib.h"
-#include "timers.h"
 #include "uart_lib.h"
 
 
 
-#define AHT20_ADDRESS 0x38          // address i2c of sensor AHT20 - doc ASAIR page 8
-
-typedef unsigned char uint8_t;      // needed because not using stdlib
-typedef unsigned int uint16_t;      // needed because not using stdlib
-
-volatile char hex[3];               // global for function toHex()
-volatile char nbr_in_a_string[7];   // global variable for function nbr_to_str()
-volatile char pot_reading[5];   // global variable for function nbr_to_str()
-
-#define CIM_FREQ_TARGET 100000UL     // 100,000 Khz
-#define BIT_RATE_PRESCALER 1    // PAGE 241 
-/// TWBR = F_CPU / CIM_FREQ_TARGET) - 16) / (2 * BIT_RATE_PRESCALER
-/// CALCULATION SCL - frequency - page 222
-///
-///                                    CPU Clock frequency
-///               SCL frequency = -----------------------
-///                             16 + 2(TWBR) * PrescalerValue 
-
-
-
-void i2c_init();
-void i2c_start();
-void i2c_stop();
-void i2c_write(volatile unsigned char c);
-void printStatus_i2c(void);
-void i2c_write(volatile unsigned char data);
-
-
-/// NOTE: prints value in 0xFF to screen with uart lib
-/// ARGS: char
-/// RETURNS: None
-
-void print_hex_value(char c) {
-        toHex(c);
-        uart_printstr(hex);
-}
-
-
-/// NOTE: write the contents of the TWDR register of the microcontroller
-
-void i2c_write(volatile unsigned char data)
-{
-    // Wait for empty transmit buffer
-    TWDR = data;
-    TWCR = (1 << TWINT) | (1 << TWEN);
-    while (!(TWCR &(1 << TWINT)))
-    ;
-    // printStatus_i2c();      
-}
-
-
-
-/// NOTE: function reads the data from AHT20 senor 7 bytes of data
-/// prints it out to screen using uart_printstr
-/// ARGS: None
-/// RETURNS: None
-
-void i2c_read(void) {
-    i2c_write((AHT20_ADDRESS << 1) | 1);    
-    for (int i = 0; i < 7; i++) {
-        TWCR |= (1 << TWINT) |( 1 << TWEN) | (1 << TWEA);
-        
-        while (!(TWCR & (1 << TWINT)))
-		;
-        uint8_t data = TWDR;
-        print_hex_value(data);
-        if ( i < 6)
-            uart_printstr(" ");
-        if (TW_STATUS != 0x50)
-            printStatus_i2c();
-    }
-    uart_printstr("\r\n");    
-}
-
-
-int main(void) {
-    
-    uart_init();
-    i2c_init();
-    while (1) {
-        
-        i2c_start();        
-        i2c_write((AHT20_ADDRESS << 1) | 0 );   // send AHT20 Sensor Address to start a measurement
-        i2c_write(0xAC);    
-        i2c_write(0x33);    
-        i2c_write(0x00);
-        i2c_stop();
-
-        i2c_start();
-        _delay_ms(80);   
-        i2c_read();
-        i2c_stop();
-
-    }
-}
 
 
 /// NOTE: program sets up i2c comminication
@@ -127,8 +25,10 @@ int main(void) {
 void i2c_init() {
 
     TWSR &= ~((1 << TWPS0) | (1 << TWPS1));         //  page 241 Prescaler value set to 1 
-    TWBR = 72;                                      //  see calculation in head of file
+    TWBR = 72;                                      //  see calculation at head of file
 }
+
+
 
 
 /// NOTE: starts the i2c coms on - pin 27 and 28  (SCL - clock SDA - data) - page 225 datasheet
@@ -149,6 +49,9 @@ void i2c_start() {
   
 }
 
+
+
+
 /// NOTE: stop i2c coms
 /// TWSTO - page 225 datasheet
 /// ARGS: None
@@ -160,10 +63,24 @@ void i2c_stop() {
     
 
 
+/// NOTE: write the contents of the TWDR register of the microcontroller
+
+void i2c_write(volatile unsigned char data)
+{
+    // Wait for empty transmit buffer
+    TWDR = data;
+    TWCR = (1 << TWINT) | (1 << TWEN);
+    while (!(TWCR &(1 << TWINT)))
+    ;
+}
+
+
+
+
+
 /// NOTE: code status of avr-libc
 /// <util/twi.h>: TWI bit mask definitions
 /// https://www.nongnu.org/avr-libc/user-manual/group__util__twi.html
-
 
 void printStatus_i2c(void) {
 
