@@ -6,7 +6,7 @@
 /*   By: nrobinso <nrobinso@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/04/13 15:41:53 by nrobinso          #+#    #+#             */
-/*   Updated: 2026/04/26 19:37:14 by nrobinso         ###   ########.fr       */
+/*   Updated: 2026/04/27 11:52:17 by nrobinso         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -21,9 +21,9 @@
 #include "timers.h"
 #include "uart_lib.h"
 
-void printStatus_i2c(void);
 
 
+#define AHT20_ADDRESS 0x38          // address i2c of sensor AHT20 - doc ASAIR page 8
 
 typedef unsigned char uint8_t;      // needed because not using stdlib
 typedef unsigned int uint16_t;      // needed because not using stdlib
@@ -36,17 +36,18 @@ volatile char pot_reading[5];   // global variable for function nbr_to_str()
 #define BIT_RATE_PRESCALER 1    // PAGE 241 
 /// TWBR = F_CPU / CIM_FREQ_TARGET) - 16) / (2 * BIT_RATE_PRESCALER
 /// CALCULATION SCL - frequency - page 222
+///
 ///                                    CPU Clock frequency
 ///               SCL frequency = -----------------------
 ///                             16 + 2(TWBR) * PrescalerValue 
 
 
 
-void i2c_tx(volatile unsigned char c);
 void i2c_init();
 void i2c_start();
 void i2c_stop();
-void i2c_tx(volatile unsigned char c);
+void i2c_write(volatile unsigned char c);
+void printStatus_i2c(void);
 
 
 
@@ -61,97 +62,127 @@ unsigned char i2c_rx(void) {
     return (c);                                         // return c
 }
 
-uint8_t read_sensor(void) {
 
-	TWCR |= (1 << TWINT) |( 1 << TWEN) | (1 << TWEA);
-
-	while (!(TWCR & (1 << TWINT)))
-		;
-	uint8_t data = TWDR;
-	return data;	
-
-		
+void print_hex_value(char c) {
+        toHex(c);
+        uart_printstr(hex);
 }
 
-#define AHT20_ADDRESS 0x38
-unsigned char status;
 
-int main(void) {
-    uart_init();
-    
-    i2c_init();
+void i2c_master_write(volatile unsigned char data)
+{
+    // Wait for empty transmit buffer
+    TWDR = data;
+    TWCR = (1 << TWINT) | (1 << TWEN);
+    while (!(TWCR &(1 << TWINT)))
+    ;
+    // printStatus_i2c();      
+}
+
+
+
+/// NOTE: function reads the data from AHT20 senor 7 bytes of data
+/// prints it out to screen using uart_printstr
+/// ARGS: None
+/// RETURNS: None
+
+void i2c_read(void) {
+    i2c_start();
+    i2c_master_write((AHT20_ADDRESS << 1) | 1);    
+    for (int i = 0; i < 7; i++) {
+        TWCR |= (1 << TWINT) |( 1 << TWEN) | (1 << TWEA);
+        
+        while (!(TWCR & (1 << TWINT)))
+		;
+        uint8_t data = TWDR;
+        print_hex_value(data);
+        if ( i < 6)
+            uart_printstr(" ");
+        if (TW_STATUS != 0x50)
+            printStatus_i2c();
+    }
+    i2c_stop();
+    uart_printstr("\r\n");    
+}
+
+
+
+
+
+/// NOTE: function writes
+
+void i2c_write(volatile unsigned char data) {
+
     _delay_ms(100);
     i2c_start();        
-    i2c_tx((AHT20_ADDRESS << 1) | 0);    
     _delay_ms(10);
-    i2c_tx(0xAC);    
-    i2c_tx(0x33);    
-    i2c_tx(0x00);
+    i2c_master_write((data << 1) | 0);    
+    i2c_master_write(0xAC);    
+    i2c_master_write(0x33);    
+    i2c_master_write(0x00);
+    _delay_ms(10);
     i2c_stop();
-    i2c_start();
-    i2c_tx((AHT20_ADDRESS << 1) | 1);    
-    _delay_ms(80);      
-	
-	putnbr((uint16_t)(read_sensor()));
-
-	
-	
-
-
-
-
-
-
-
-    
-    while (1) { }
+    _delay_ms(80);   
 }
+
+
+
+
+
+int main(void) {
     
+    uart_init();
+    i2c_init();
+    while (1) {
+        i2c_write(AHT20_ADDRESS);   // send AHT20 Sensor Address to start a measurement
+        i2c_read();
+    }
+}
 
 
-
+/// NOTE: program sets up i2c comminication
+/// ARGS: None
+/// RETURNS: None
 
 void i2c_init() {
 
     TWSR &= ~((1 << TWPS0) | (1 << TWPS1));         //  page 241 Prescaler value set to 1 
-    TWBR = 72;         // set TWBR value for 100,000 Khz- page 241  
-    // TWBR |= ((1 << TWD3) | (1 << TWD6));            // set TWDR to 72 - see page 239 add header
-    
-    // TWCR |= (1 << TWEN);
+    TWBR = 72;                                      //  see calculation in head of file
 }
 
+
+/// NOTE: starts the i2c coms on - pin 27 and 28  (SCL - clock SDA - data) - page 225 datasheet
+/// ARGS: None
+/// RETURNS: None
 
 void i2c_start() {
 
-    TWCR |= (1 << TWEN) | (1 << TWSTA) | (1 << TWINT);
+    TWCR |= (1 << TWEN) | (1 << TWSTA) | (1 << TWINT);          // page 226
     while (!(TWCR &(1<<TWINT)))
             ;
-    printStatus_i2c();
+        if ((TWSR & 0xF8) != 0x08) {
+
+            uart_printstr("Error: start - condition\r\n");
+            printStatus_i2c();
+            return ;
+        }
   
 }
 
+/// NOTE: stop i2c coms
+/// TWSTO - page 225 datasheet
+/// ARGS: None
+/// RETURNS: None
 
 void i2c_stop() {
     TWCR |= (1 << TWEN) | (1 << TWSTO) | (1 << TWINT);
-    printStatus_i2c();
-
 }
     
 
 
-void i2c_tx(volatile unsigned char c)
-{
-    // Wait for empty transmit buffer
-    TWDR = c;
-    TWCR = (1 << TWINT) | (1 << TWEN);
-    while (!(TWCR &(1 << TWINT)))
-    ;
-    printStatus_i2c();      
-}
-
-
-
-
+/// NOTE: code status of avr-libc
+/// <util/twi.h>: TWI bit mask definitions
+/// https://www.nongnu.org/avr-libc/user-manual/group__util__twi.html
 
 
 void printStatus_i2c(void) {
