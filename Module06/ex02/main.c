@@ -6,7 +6,7 @@
 /*   By: nrobinso <nrobinso@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/04/13 15:41:53 by nrobinso          #+#    #+#             */
-/*   Updated: 2026/04/27 12:00:32 by nrobinso         ###   ########.fr       */
+/*   Updated: 2026/04/27 11:52:17 by nrobinso         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -113,6 +113,7 @@ void i2c_read(void) {
 
 void i2c_write(volatile unsigned char data) {
 
+    _delay_ms(100);
     i2c_start();        
     _delay_ms(10);
     i2c_master_write((data << 1) | 0);    
@@ -132,7 +133,6 @@ int main(void) {
     
     uart_init();
     i2c_init();
-    _delay_ms(100);
     while (1) {
         i2c_write(AHT20_ADDRESS);   // send AHT20 Sensor Address to start a measurement
         i2c_read();
