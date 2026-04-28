@@ -6,7 +6,7 @@
 /*   By: nrobinso <nrobinso@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/04/28 14:26:26 by nrobinso          #+#    #+#             */
-/*   Updated: 2026/04/28 15:18:47 by nrobinso         ###   ########.fr       */
+/*   Updated: 2026/04/28 15:32:26 by nrobinso         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -65,7 +65,6 @@ uint16_t print_eeprom_hex_line(uint8_t line) {
         uart_printstr(hex);
         uart_printstr(" ");
         position_count++;
-        _delay_ms(80);
     }
     return (position_count);
 }
@@ -104,7 +103,7 @@ uint16_t  print_eeprom_segment(uint16_t line_start, uint16_t line_end, uint16_t 
 
 uint16_t print_eeprom_hexdump_line(uint8_t lineNbr){
     
-    uint8_t position = lineNbr * 16;
+    uint16_t position = lineNbr * 16;
     uint16_t charNbr = position;
     
     if (position == 0)       
@@ -140,7 +139,6 @@ void print_eeprom_line(uint8_t line) {
         else
             uart_tx('.');
         position_count_ascii++;
-        _delay_ms(80);
     }
     uart_tx('|');
 }

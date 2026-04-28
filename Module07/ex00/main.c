@@ -6,7 +6,7 @@
 /*   By: nrobinso <nrobinso@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/04/13 15:41:53 by nrobinso          #+#    #+#             */
-/*   Updated: 2026/04/28 15:17:10 by nrobinso         ###   ########.fr       */
+/*   Updated: 2026/04/28 15:36:36 by nrobinso         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -28,8 +28,20 @@ typedef unsigned int uint16_t;      // needed because not using stdlib
 
 volatile char hex[4];               // global for function toHex()
 volatile char nbr_in_a_string[7];   // global variable for function nbr_to_str()
-volatile char pot_reading[5];       // global variable for function nbr_to_str()
 
+
+
+/// NOTE: function display contenu of the eeprom in hex dump format 
+/// [address start 0xfff number] [16 bytes in 0xff in 8 bits] [printable unsigned chars visable]
+/// ARGS: None
+/// RETURNS: None
+
+void eeprom_dispay(void) {
+
+    for (int i = 0; i < 64; i++) {
+        print_eeprom_hexdump_line(i);
+    }
+}
 
 
 
@@ -37,19 +49,9 @@ int main(void) {
 
     uart_init();
     uart_printstr("ATmega328p started...\r\n\r\n");
-    
-
-    // print_eeprom(0);
-    // print_eeprom(4);
-    putnbr(print_eeprom_hexdump_line(63));
-
-    print_eeprom_segment(0, 1023, 64);
-    // putnbr(nbr);
+    eeprom_dispay();
     while(1) {
-        
 
-
-        
     }
 }
 
