@@ -6,7 +6,7 @@
 /*   By: nrobinso <nrobinso@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/04/28 14:26:26 by nrobinso          #+#    #+#             */
-/*   Updated: 2026/04/28 14:39:03 by nrobinso         ###   ########.fr       */
+/*   Updated: 2026/04/28 14:56:49 by nrobinso         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -51,7 +51,7 @@ uint8_t eeprom_read(uint16_t address) {
 void print_eeprom_hex_line(uint8_t line) {
     
     if (line > 63) {
-        uart_printstr("Error : in function line > 63");
+        uart_printstr("Error : in function line > 63 \r\n");
         return;
     }
     uint16_t position_count = line * 16;
@@ -69,4 +69,30 @@ void print_eeprom_hex_line(uint8_t line) {
     }
 }
 
+
+/// NOTE: function prints out a segement of the eeprom in the atmega328p
+/// ARGS: 3 uint16_t : start pos, end pos, size of the line 16 chars for example
+/// RETURNS: Number of chars printed with uarts
+
+uint16_t  print_eeprom_segment(uint16_t line_start, uint16_t line_end, uint16_t line_size) {
+
+    int index = 0;
+    if (line_end > 1023 || line_size > 1023){
+        uart_printstr("Error: eeprom_segment fn size limit error\r\n");
+        return (0) ;
+    }
+    for(uint16_t i = line_start; i < line_end; i++) {
+
+        uint8_t res  = eeprom_read(0x000 + i);
+        if (i %line_size == 0)
+            uart_printstr("\r\n");
+        if (Printable(res)) {
+            uart_tx(res);
+        } else {
+            uart_tx('.');
+        }
+        index++;
+    }
+    return (index);
+}
 

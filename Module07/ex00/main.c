@@ -6,7 +6,7 @@
 /*   By: nrobinso <nrobinso@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/04/13 15:41:53 by nrobinso          #+#    #+#             */
-/*   Updated: 2026/04/28 14:29:44 by nrobinso         ###   ########.fr       */
+/*   Updated: 2026/04/28 14:56:08 by nrobinso         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -97,20 +97,6 @@ void print_eeprom(uint8_t lineNbr){
 }
 
 
-void  print_eeprom_vrac_line(uint16_t line_start, uint16_t line_end, uint16_t line_size) {
-    for(uint16_t i = line_start; i < line_end; i++) {
-
-        uint8_t res  = eeprom_read(0x000 + i);
-        if (i %line_size == 0)
-            uart_printstr("\r\n");
-        if (Printable(res)) {
-            uart_tx(res);
-        } else {
-            uart_tx('.');
-        }
-    }
-}
-
 
 
 
@@ -124,8 +110,8 @@ int main(void) {
     // print_eeprom(4);
     // print_eeprom(6);
 
-    print_eeprom_vrac_line(0, 1023, 64);
-    
+    print_eeprom_segment(1022, 1024, 64);
+    // putnbr(nbr);
     while(1) {
         
 
