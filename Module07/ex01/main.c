@@ -6,12 +6,13 @@
 /*   By: nrobinso <nrobinso@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/04/13 15:41:53 by nrobinso          #+#    #+#             */
-/*   Updated: 2026/04/28 18:20:39 by nrobinso         ###   ########.fr       */
+/*   Updated: 2026/04/28 18:48:27 by nrobinso         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include <avr/io.h>
 #include <avr/eeprom.h>
+#include <util/delay.h>                         // delay for the debounce
 
 #include "uart_lib.h"
 // #include "led_lib.h"
@@ -98,6 +99,24 @@ void __vector_18(void)
 
 
 
+/// NOTE: function writes from an address in the eeprom
+/// ARGS: addess in the eeprom 0 to 1023 (1 k) 
+/// RETURNS: uint8_t 8 bit char
+
+void eeprom_write(uint16_t address, unsigned char data) {
+
+    while ((EECR & (1 << EERE)))
+        ;
+    EEAR = address;
+    EEDR = data;
+    EECR |= (1 << EEMPE);
+    EECR |= (1 << EEPE);
+    
+}
+
+
+
+
 
 
 int  main( void ) {
@@ -160,8 +179,10 @@ int  main( void ) {
 
             eeprom_dispay(0, 10);
 
-
-
+            eeprom_write(4, 65);
+            uart_printstr("\r\n");
+            _delay_ms(1000);
+            eeprom_dispay(0, 10);
 
             
             resetFlags();
