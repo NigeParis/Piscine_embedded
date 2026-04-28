@@ -6,14 +6,14 @@
 #    By: nrobinso <nrobinso@student.42.fr>          +#+  +:+       +#+         #
 #                                                 +#+#+#+#+#+   +#+            #
 #    Created: 2026/04/13 13:45:55 by nrobinso          #+#    #+#              #
-#    Updated: 2026/04/27 18:00:51 by nrobinso         ###   ########.fr        #
+#    Updated: 2026/04/28 14:27:54 by nrobinso         ###   ########.fr        #
 #                                                                              #
 # **************************************************************************** #
 
 # ------------------------- project -------------------------------------------
 NAME=main
 TOOLS=tools.c
-LIB=uart_lib.c i2c_lib.c
+LIB=uart_lib.c i2c_lib.c eeprom_lib.c
 
 # ------------------------- compiler ------------------------------------------
 CC=avr-gcc

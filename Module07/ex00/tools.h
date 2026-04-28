@@ -6,7 +6,7 @@
 /*   By: nrobinso <nrobinso@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/04/17 13:56:57 by nrobinso          #+#    #+#             */
-/*   Updated: 2026/04/27 17:41:31 by nrobinso         ###   ########.fr       */
+/*   Updated: 2026/04/28 13:13:33 by nrobinso         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -39,6 +39,8 @@
     void putnbr(uint16_t nbr);
     void putnbr_32t(uint32_t nbr);
     void print_hex_value(char c);
+    void toHex_0xFFF(uint16_t c);
+    bool Printable(unsigned char c);
 
 
 #endif 
