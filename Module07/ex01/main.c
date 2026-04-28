@@ -6,7 +6,7 @@
 /*   By: nrobinso <nrobinso@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/04/13 15:41:53 by nrobinso          #+#    #+#             */
-/*   Updated: 2026/04/28 17:52:16 by nrobinso         ###   ########.fr       */
+/*   Updated: 2026/04/28 18:20:39 by nrobinso         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -41,29 +41,16 @@ volatile uint8_t check_inputflag;
 volatile uint8_t run_flag;
 
 
-void resetFlags(void) {
 
-    RX_index = 0;
-    inputflag = 0;
-    promptflag = 0;
-    check_inputflag = 0;
-    run_flag = 0;
-    buffer[0] = '\0';
-}
-
-
-char backspace(char c) {        
-
-    if (c == 0x7F) {
-        if (RX_index > 0) {
-            uart_printstr("\b \b");
-            RX_index--;
-            return c;
-        }
-    }
-    return c;
-}
-
+void resetFlags(void);
+char backspace(char c);
+void remove_spaces(char *str, char *dest);
+void resetPrompt(char *hexValue, char* hexAddress);
+bool check_input(char *str);
+void empty_str(char *str);
+void remove_spaces(char *str, char *dest);
+void get_hexValue(char *str, char *dest);
+void  get_hexAddress(char *str, char *dest);
 
 
 /// NOTE: // USART_RX interupt 19 - page 66
@@ -110,57 +97,7 @@ void __vector_18(void)
 }
 
 
-void remove_spaces(char *str, char *dest) {
 
-    int index = 0;
-    int dest_index = 0;
-
-    while (str[index] == ' ')
-        index++;
-    
-    while (str && str[index]) {
-
-        while (str[index] == ' ')
-            index++;
-        dest[dest_index] = str[index];
-        index++;
-        dest_index++;
-    }    
-    dest[dest_index] = '\0';
-}
-
-
-void get_hexValue(char *str, char *dest) {
-
-    int index = ft_strlen((uint8_t*)str);
-    
-    dest[0] = str[index - 2];
-    dest[1] = str[index - 1];
-    dest[2] = '\0';
-}
-
-
-void empty_str(char *str) {
-    str[0] = '\0';
-}
-
-
-bool check_input(char *str){
-    
-    int len = ft_strlen((uint8_t*)str);
-    if (len < 4 || len > 5) {
-        return (0);
-    }
-    return(1);
-}
-
-
-void resetPrompt(char *hexValue, char* hexAddress) {
-    uart_printstr("\r\n");
-    empty_str(hexValue);
-    empty_str(hexAddress);
-    resetFlags();
-}
 
 
 int  main( void ) {
@@ -196,42 +133,138 @@ int  main( void ) {
             inputflag = 0;
         }
 
-       
+        // paring check
         if (check_inputflag == 1) {
 
             remove_spaces(input, formatted_input);
-            // uart_printstr("\r\n");
-            // uart_printstr(formatted_input);
             if (check_input(formatted_input)) { 
-                get_hexValue(formatted_input, hexValue);
                 if (!is_valid_hex_str((uint8_t*)formatted_input)) {
-
-                    uart_printstr("\r\n");
-                    empty_str(hexValue);
-                    empty_str(hexAddress);
-                    resetFlags();
+                    resetPrompt(hexValue, hexAddress);
                     continue ;
-                    
                 }
-                uart_printstr("\r\n");
-                uart_printstr(hexValue);
+                get_hexValue(formatted_input, hexValue);
+                get_hexAddress(formatted_input, hexAddress);
+                if ((hexAddress[0] > '3') && (ft_strlen((uint8_t*)hexAddress) == 3)) {
+                    resetPrompt(hexValue, hexAddress);
+                    continue ;
+                }
                 run_flag = 1;
             } else {
                 resetPrompt(hexValue, hexAddress);
-                // uart_printstr("\r\n");
-                // empty_str(hexValue);
-                // empty_str(hexAddress);
-                // resetFlags();
             }           
         }
 
 
         if (run_flag == 1) {
             uart_printstr("\r\n");
+
             eeprom_dispay(0, 10);
+
+
+
+
+            
             resetFlags();
             uart_printstr("\r\n");
         }
+    }
+}
+
+
+
+void resetFlags(void) {
+
+    RX_index = 0;
+    inputflag = 0;
+    promptflag = 0;
+    check_inputflag = 0;
+    run_flag = 0;
+    buffer[0] = '\0';
+}
+
+
+char backspace(char c) {        
+
+    if (c == 0x7F) {
+        if (RX_index > 0) {
+            uart_printstr("\b \b");
+            RX_index--;
+            return c;
+        }
+    }
+    return c;
+}
+
+
+
+void empty_str(char *str) {
+    str[0] = '\0';
+}
+
+
+bool check_input(char *str){
+    
+    int len = ft_strlen((uint8_t*)str);
+    if (len < 4 || len > 5) {
+        return (0);
+    }
+    return(1);
+}
+
+
+void resetPrompt(char *hexValue, char* hexAddress) {
+    uart_printstr("\r\n");
+    empty_str(hexValue);
+    empty_str(hexAddress);
+    resetFlags();
+}
+
+
+void remove_spaces(char *str, char *dest) {
+
+    int index = 0;
+    int dest_index = 0;
+
+    while (str[index] == ' ')
+        index++;
+    
+    while (str && str[index]) {
+
+        while (str[index] == ' ')
+            index++;
+        dest[dest_index] = str[index];
+        index++;
+        dest_index++;
+    }    
+    dest[dest_index] = '\0';
+}
+
+
+void get_hexValue(char *str, char *dest) {
+
+    int index = ft_strlen((uint8_t*)str);
+    
+    dest[0] = str[index - 2];
+    dest[1] = str[index - 1];
+    dest[2] = '\0';
+}
+
+
+
+
+void  get_hexAddress(char *str, char *dest) {
+
+    int len = ft_strlen((uint8_t*)str);
+    if (len == 4) {
+        dest[0] = str[0];
+        dest[1] = str[1];
+        dest[2] = '\0';   
+    }
+    if (len == 5) {
+        dest[0] = str[0];
+        dest[1] = str[1];
+        dest[2] = str[2];
+        dest[3] = '\0';
     }
 }
 
