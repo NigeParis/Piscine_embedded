@@ -6,7 +6,7 @@
 /*   By: nrobinso <nrobinso@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/04/13 15:41:53 by nrobinso          #+#    #+#             */
-/*   Updated: 2026/04/27 17:52:35 by nrobinso         ###   ########.fr       */
+/*   Updated: 2026/04/28 09:06:17 by nrobinso         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -97,7 +97,7 @@ void i2c_read(void) {
         tempC = ((float)average_raw_temp / 1048576.1f) * 200.1f - 50.1f;
         
         average_raw_humid = (rawData[0].humidity + rawData[1].humidity + rawData[2].humidity) / 3;
-        humidity = ((float)average_raw_temp / 1048576.1f) * 100.1f;
+        humidity = ((float)average_raw_humid / 1048576.1f) * 100.1f;
         
         char bufferTemp[10];
         dtostrf(tempC, 0, 1, bufferTemp);
