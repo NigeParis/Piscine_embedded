@@ -6,7 +6,7 @@
 /*   By: nrobinso <nrobinso@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/04/28 14:26:26 by nrobinso          #+#    #+#             */
-/*   Updated: 2026/04/28 15:32:26 by nrobinso         ###   ########.fr       */
+/*   Updated: 2026/04/28 16:20:24 by nrobinso         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -141,5 +141,19 @@ void print_eeprom_line(uint8_t line) {
         position_count_ascii++;
     }
     uart_tx('|');
+}
+
+
+
+/// NOTE: function display contenu of the eeprom in hex dump format 
+/// [address start 0xfff number] [16 bytes in 0xff in 8 bits] [printable unsigned chars visable]
+/// ARGS: None
+/// RETURNS: None
+
+void eeprom_dispay(int start, int stop) {
+
+    for (int i = start; i < stop; i++) {
+        print_eeprom_hexdump_line(i);
+    }
 }
 

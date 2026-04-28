@@ -6,12 +6,11 @@
 /*   By: nrobinso <nrobinso@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/04/13 15:41:53 by nrobinso          #+#    #+#             */
-/*   Updated: 2026/04/28 15:36:36 by nrobinso         ###   ########.fr       */
+/*   Updated: 2026/04/28 15:56:03 by nrobinso         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include <avr/io.h>
-#include <util/delay.h>
 #include <avr/eeprom.h>
 
 #include "tools.h"

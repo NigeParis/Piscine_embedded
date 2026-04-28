@@ -6,7 +6,7 @@
 /*   By: nrobinso <nrobinso@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/04/28 14:24:15 by nrobinso          #+#    #+#             */
-/*   Updated: 2026/04/28 15:14:54 by nrobinso         ###   ########.fr       */
+/*   Updated: 2026/04/28 16:20:36 by nrobinso         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -25,6 +25,7 @@ uint16_t print_eeprom_hex_line(uint8_t line);
 uint16_t print_eeprom_segment(uint16_t line_start, uint16_t line_end, uint16_t line_size);
 uint16_t print_eeprom_hexdump_line(uint8_t lineNbr);
 void print_eeprom_line(uint8_t line);
+void eeprom_dispay(int start, int stop);
 
 
 #endif

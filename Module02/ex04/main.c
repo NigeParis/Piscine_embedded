@@ -6,7 +6,7 @@
 /*   By: nrobinso <nrobinso@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/04/13 15:41:53 by nrobinso          #+#    #+#             */
-/*   Updated: 2026/04/19 10:25:08 by nrobinso         ###   ########.fr       */
+/*   Updated: 2026/04/28 15:47:50 by nrobinso         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -145,7 +145,7 @@ int  main( void ) {
     char password_string[BUFFER] = {0};
     int i = 0;
     
-    uart_Init();
+    uart_init();
     uart_Init_interupts();     
     resetFlags();
     
