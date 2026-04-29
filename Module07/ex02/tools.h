@@ -6,7 +6,7 @@
 /*   By: nrobinso <nrobinso@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/04/17 13:56:57 by nrobinso          #+#    #+#             */
-/*   Updated: 2026/04/29 15:26:29 by nrobinso         ###   ########.fr       */
+/*   Updated: 2026/04/29 18:52:29 by nrobinso         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -44,5 +44,7 @@
     uint16_t hexStr_to_dec(char* hexString);
     void loop_for_one_millisecond(volatile uint16_t loop_Max);
     void pause_in_milliseconds(uint16_t time_in_ms);
+    uint16_t nbrStr_to_dec(const char* nbrString);
+
 
 #endif 

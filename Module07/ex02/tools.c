@@ -6,7 +6,7 @@
 /*   By: nrobinso <nrobinso@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/04/17 13:51:57 by nrobinso          #+#    #+#             */
-/*   Updated: 2026/04/29 16:13:35 by nrobinso         ###   ########.fr       */
+/*   Updated: 2026/04/29 18:52:18 by nrobinso         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -444,3 +444,29 @@ void pause_in_milliseconds(uint16_t time_in_ms) {
         time_in_ms--;
     }
 } 
+
+
+
+/// NOTE: string dec in to decimal -> "09" -> 9
+/// ARGS: string to convert
+/// RETURNS: uint16_t value in decimal
+
+uint16_t nbrStr_to_dec(const char* nbrString) {
+
+    uint16_t result = 0;
+    uint8_t index = 0;
+
+    while (nbrString && nbrString[index]) {
+
+        if (nbrString[index] < '0' || nbrString[index] > '9') {
+            break;  // stop on non-digit
+        }
+
+        uint8_t digit = nbrString[index] - '0';
+        result = result * 10 + digit;
+
+        index++;
+    }
+
+    return result;
+}

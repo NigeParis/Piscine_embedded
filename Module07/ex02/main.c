@@ -6,7 +6,7 @@
 /*   By: nrobinso <nrobinso@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/04/13 15:41:53 by nrobinso          #+#    #+#             */
-/*   Updated: 2026/04/29 18:40:41 by nrobinso         ###   ########.fr       */
+/*   Updated: 2026/04/29 18:53:58 by nrobinso         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -245,7 +245,7 @@ void get_cmd (char *str, char *cmd, char *value) {
 }
 
 char cmd[BUFFER] = {0};
-char value[BUFFER] = {0};
+char value[BUFFER] = {8};
 
 
 int  main( void ) {
@@ -306,6 +306,13 @@ int  main( void ) {
             if (ft_strcmp((unsigned char*)formatted_input , (unsigned char*)"set_id")) {
                 uart_printstr("\r\nSET_ID called\r\n");
                 // eeprom_clear();
+                resetPrompt(hexValue, hexAddress);
+                continue;
+            }
+
+            if (ft_strcmp((unsigned char*)cmd , (unsigned char*)"display")) {
+                uart_printstr("\r\nSET_ID called\r\n");
+                eeprom_dispay(0, nbrStr_to_dec(value), 0, 0);            
                 resetPrompt(hexValue, hexAddress);
                 continue;
             }
