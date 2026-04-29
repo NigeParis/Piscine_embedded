@@ -6,7 +6,7 @@
 /*   By: nrobinso <nrobinso@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/04/17 13:51:57 by nrobinso          #+#    #+#             */
-/*   Updated: 2026/04/28 13:13:14 by nrobinso         ###   ########.fr       */
+/*   Updated: 2026/04/29 11:26:30 by nrobinso         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -393,3 +393,45 @@ void print_hex_value(char c) {
         toHex(c);
         uart_printstr(hex);
 }
+
+
+/// NOTE: string in hex to decimal -> FF -> 255
+/// ARGS: string to convert
+/// RETURNS: uint16_t value in decimal
+
+uint16_t hexStr_to_dec(char* hexString) {
+
+    uint8_t index = 0;
+    uint16_t result = 0;
+    
+    while (hexString && hexString[index]) {
+        uint8_t value = 0;
+        if (hexString[index] >= '0' && hexString[index] <= '9') {
+            value = hexString[index] - '0';            
+        } else if (hexString[index] >= 'a' && hexString[index] <= 'f') {
+            
+            value = hexString[index] - 'a' + 10;                        
+        } else {
+            break;
+        }
+        result = (result << 4) | value;
+        index++;
+    }
+    return (result);    
+}
+
+
+#define CALIBRATE_MS 8000
+
+void loop_for_one_millisecond(volatile uint16_t loop_Max) {
+
+    for (uint16_t i = 0; i < loop_Max; i++)
+        ;
+} 
+void pause_in_milliseconds(uint16_t time_in_ms) {
+
+    while (time_in_ms > 0) {
+        loop_for_one_millisecond(F_CPU / CALIBRATE_MS);       
+        time_in_ms--;
+    }
+} 

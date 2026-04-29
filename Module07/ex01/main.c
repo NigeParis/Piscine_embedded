@@ -6,7 +6,7 @@
 /*   By: nrobinso <nrobinso@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/04/13 15:41:53 by nrobinso          #+#    #+#             */
-/*   Updated: 2026/04/28 18:48:27 by nrobinso         ###   ########.fr       */
+/*   Updated: 2026/04/29 12:38:11 by nrobinso         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -53,7 +53,6 @@ void remove_spaces(char *str, char *dest);
 void get_hexValue(char *str, char *dest);
 void  get_hexAddress(char *str, char *dest);
 
-
 /// NOTE: // USART_RX interupt 19 - page 66
 /// ARGS: None
 /// RETURNS: None
@@ -74,7 +73,7 @@ void __vector_18(void)
     if (RX_index < 11) {
         c = backspace(c);
 
-        
+        // receive data
         if (c != 0x7F && RX_index < 11) {
             buffer[RX_index] = c;
         } else { 
@@ -89,34 +88,13 @@ void __vector_18(void)
     else {
         if (RX_index < 11){       
             uart_interupt_tx(buffer[RX_index]); 
-            RX_index++;      // receive data
+            RX_index++;      
         } else {
             c = 0x7F;
             backspace(c);
         }
     }
 }
-
-
-
-/// NOTE: function writes from an address in the eeprom
-/// ARGS: addess in the eeprom 0 to 1023 (1 k) 
-/// RETURNS: uint8_t 8 bit char
-
-void eeprom_write(uint16_t address, unsigned char data) {
-
-    while ((EECR & (1 << EERE)))
-        ;
-    EEAR = address;
-    EEDR = data;
-    EECR |= (1 << EEMPE);
-    EECR |= (1 << EEPE);
-    
-}
-
-
-
-
 
 
 int  main( void ) {
@@ -173,18 +151,14 @@ int  main( void ) {
             }           
         }
 
-
+        // cheack if value is already in the address - write it if not and display
         if (run_flag == 1) {
             uart_printstr("\r\n");
-
-            eeprom_dispay(0, 10);
-
-            eeprom_write(4, 65);
-            uart_printstr("\r\n");
-            _delay_ms(1000);
-            eeprom_dispay(0, 10);
-
-            
+            uint16_t EEPROM_address = hexStr_to_dec(hexAddress);
+            uint16_t EEPROM_value = hexStr_to_dec(hexValue);
+            uint8_t write_flag = eeprom_update(EEPROM_address, EEPROM_value);
+            pause_in_milliseconds(500);
+            eeprom_dispay(0, 64, EEPROM_address, write_flag);            
             resetFlags();
             uart_printstr("\r\n");
         }

@@ -6,7 +6,7 @@
 /*   By: nrobinso <nrobinso@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/04/17 13:56:57 by nrobinso          #+#    #+#             */
-/*   Updated: 2026/04/28 13:13:33 by nrobinso         ###   ########.fr       */
+/*   Updated: 2026/04/29 11:26:41 by nrobinso         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -41,6 +41,8 @@
     void print_hex_value(char c);
     void toHex_0xFFF(uint16_t c);
     bool Printable(unsigned char c);
-
+    uint16_t hexStr_to_dec(char* hexString);
+    void loop_for_one_millisecond(volatile uint16_t loop_Max);
+    void pause_in_milliseconds(uint16_t time_in_ms);
 
 #endif 
