@@ -6,7 +6,7 @@
 /*   By: nrobinso <nrobinso@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/04/17 13:51:57 by nrobinso          #+#    #+#             */
-/*   Updated: 2026/04/28 13:13:14 by nrobinso         ###   ########.fr       */
+/*   Updated: 2026/04/30 09:15:25 by nrobinso         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -17,7 +17,7 @@ typedef unsigned char uint8_t;      // needed because not using stdlib
 typedef unsigned int uint16_t;      // needed because not using stdlib
 
 extern volatile char hex[4];                // global variable for function toHex()
-extern volatile char nbr_in_a_string[7];    // global variable for function nbr_to_str()
+extern volatile char nbr_in_a_string[20];    // global variable for function nbr_to_str()
 
 
 

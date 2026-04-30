@@ -6,7 +6,7 @@
 /*   By: nrobinso <nrobinso@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/04/17 13:51:57 by nrobinso          #+#    #+#             */
-/*   Updated: 2026/04/29 18:52:18 by nrobinso         ###   ########.fr       */
+/*   Updated: 2026/04/30 11:38:33 by nrobinso         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -349,15 +349,18 @@ void nbr_to_str (uint32_t nbr) {
         len++;
         nbr_in_a_string[len] = '\0'; 
     }
-    reverseNumString(nbr_in_a_string);
 
+    // uart_printstr("\r\n DEBUG nbr to STR 0 :");
+    reverseNumString(nbr_in_a_string);
+    // uart_printstr(nbr_in_a_string);
+    // uart_printstr("\r\n DEBUG nbr to STR 1\r\n");
 }
 
 void ft_itoa(uint32_t nbr, int index){
 
     int i = index;
 
-    if (nbr < 9) {
+    if (nbr <= 9) {
         i++;
         nbr_in_a_string[i] = (nbr % 10) + '0';
         i++;
@@ -384,12 +387,34 @@ void putnbr(uint16_t nbr){
 
 
 
-void putnbr_32t(uint32_t nbr){
+// void putnbr_32t(uint32_t nbr){
 
-    if (nbr > 9)  {
-        putnbr_32t(nbr / 10);
+//     if (nbr > 9)  {
+//         putnbr_32t(nbr / 10);
+//     }
+//     uart_tx(((nbr % 10) + '0'));
+// }
+
+
+
+void putnbr_32t(uint32_t nbr) {
+    char    buf[10];        // max 10 digits for uint32_t (fits in registers/stack once)
+    uint8_t i = 0;
+
+    if (nbr == 0) {
+        uart_tx('0');
+        return;
     }
-    uart_tx(((nbr % 10) + '0'));
+
+    while (nbr > 0) {
+        buf[i++] = (nbr % 10) + '0';
+        nbr /= 10;
+    }
+
+    // digits are stored in reverse, print backwards
+    while (i--) {
+        uart_tx(buf[i]);
+    }
 }
 
 

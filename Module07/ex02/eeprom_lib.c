@@ -6,7 +6,7 @@
 /*   By: nrobinso <nrobinso@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/04/28 14:26:26 by nrobinso          #+#    #+#             */
-/*   Updated: 2026/04/29 18:06:32 by nrobinso         ###   ########.fr       */
+/*   Updated: 2026/04/30 12:08:14 by nrobinso         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -28,7 +28,7 @@ typedef unsigned int uint16_t;      // needed because not using stdlib
 
 
 extern volatile char hex[4];                // global variable for function toHex()
-extern volatile char nbr_in_a_string[7];    // global variable for function nbr_to_str()
+extern volatile char nbr_in_a_string[20];    // global variable for function nbr_to_str()
 extern volatile uint8_t status;            // global status eeprom   
 
 
@@ -76,15 +76,33 @@ uint8_t eeprom_update(uint16_t address, unsigned char data) {
     unsigned char c;
 
     c = eeprom_read(address);
-    pause_in_milliseconds(5);
-    if (c == data) { 
+    pause_in_milliseconds(50);
+        // uart_tx(' ');
+        // uart_tx(c);
+        // uart_tx('=');
+        // uart_tx(data);
+        // uart_tx(' ');
+        
+    if (c == data) {
         return (0);
     } else {
         eeprom_write(address, data);
-        pause_in_milliseconds(5);
+        pause_in_milliseconds(50);
         c = eeprom_read(address);
+
+        uart_printstr("\r\nDEBUG: ");
+        // putnbr_32t(address);
+        // uart_printstr("\r\nDEBUG: END\r\n");
+        // uart_tx(' ');
+        // uart_tx(c);
+        // uart_tx('=');
+        // uart_tx(data);
+        // uart_tx(' ');
+
+
+        pause_in_milliseconds(50);
         if (c != data) { 
-            setEeprom_STATUS(WRITE_ERROR);
+            status = WRITE_ERROR;
             return (0);
         }
         

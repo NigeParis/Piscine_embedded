@@ -6,7 +6,7 @@
 /*   By: nrobinso <nrobinso@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/04/13 15:41:53 by nrobinso          #+#    #+#             */
-/*   Updated: 2026/04/29 18:53:58 by nrobinso         ###   ########.fr       */
+/*   Updated: 2026/04/30 12:11:52 by nrobinso         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -28,7 +28,7 @@
 typedef unsigned char uint8_t;      // needed because not using stdlib
 typedef unsigned int uint16_t;      // needed because not using stdlib
 
-#define WRITE_ERROR 2  // eeprom status define
+#define WRITE_ERROR 200  // eeprom status define
 
 
 struct divice_config {
@@ -55,6 +55,9 @@ volatile uint8_t inputflag;
 volatile uint8_t promptflag;
 volatile uint8_t check_inputflag;
 volatile uint8_t epprom_write_flag;
+char cmd[BUFFER] = {0};
+char value[BUFFER] = {0};
+
 
 
 
@@ -129,15 +132,20 @@ void eeprom_write_str(uint16_t start_Address, volatile char *string, uint8_t len
     }
     count += eeprom_update((start_Address), '\0');
     start_Address++;
-    while (index < len + 1) {
-        count += eeprom_update((start_Address), 255);
+    index++;
+    while (index < len) {
+        string[index] = '\0';
+        count += eeprom_update((start_Address), 0);
         start_Address++;
         index++;
     }
-
+    // uart_printstr("\r\nDEBUG eep write_str : ");
+    // uart_printstr(string);
+    // uart_printstr("\r\nDEBUG eep write_str END: \r\n");
     uart_printstr("\r\nupdated chars: ");
     putnbr(count);
     uart_printstr("\r\n");
+
     
 }
 
@@ -164,14 +172,17 @@ uint8_t eeprom_write_structure(uint16_t address, struct divice_config *setup) {
 
 
     nbr_to_str(setup->magic);    
-    uart_printstr(nbr_in_a_string);
-    eeprom_write_str(address, nbr_in_a_string, 6);
+    // uart_printstr(nbr_in_a_string);
+    eeprom_write_str(address, nbr_in_a_string, 16);
     // len = ft_strlen((unsigned char*)nbr_in_a_string) + 1;
-    len += 6;
-
-    putnbr_32t(setup->id);
-    nbr_to_str(setup->id);    
-    uart_printstr(nbr_in_a_string);
+    len += 16;
+    nbr_in_a_string[0] = '\0';
+    // putnbr_32t(setup->id);
+    nbr_to_str(setup->id); 
+    // uart_printstr("DEBUG: Nbr in string set_id : ");
+    // uart_printstr(nbr_in_a_string);
+    // uart_printstr("\r\n");
+    // uart_printstr("DEBUG: Nbr in string END\r\n");
     eeprom_write_str(address + len, nbr_in_a_string, 32);
     // len += ft_strlen((unsigned char*)nbr_in_a_string) + 1;
     len += 32;
@@ -180,8 +191,10 @@ uint8_t eeprom_write_structure(uint16_t address, struct divice_config *setup) {
         tempNbr = setup->priority * -1;
         nbr_in_a_string[0] = '-';
     }
-    nbr_to_str(tempNbr);    
-    uart_printstr(nbr_in_a_string);
+    nbr_to_str(tempNbr);
+    // uart_printstr("\r\nDEBUG: set_priority: ");
+    // uart_printstr(nbr_in_a_string);
+    // uart_printstr("\r\nDEBUG: set_priority END\r\n");
     eeprom_write_str(address + len, nbr_in_a_string, 16);
     // len += ft_strlen((unsigned char*)nbr_in_a_string) + 1;
     len += 16;
@@ -190,16 +203,17 @@ uint8_t eeprom_write_structure(uint16_t address, struct divice_config *setup) {
     eeprom_write_str(address + len, setup->tag, 33);
     len += 33;
     
-    nbr_to_str(setup->check);    
-    uart_printstr(nbr_in_a_string);
-    eeprom_write_str(address + len, nbr_in_a_string, 5);
+    nbr_to_str(setup->check);
+    // uart_printstr("\r\nDEBUG: set_check: ");
+    // uart_printstr(nbr_in_a_string);
+    // uart_printstr("\r\nDEBUG: set_check END\r\n");
+
+    eeprom_write_str(address + len, nbr_in_a_string, 16);
     // len = ft_strlen((unsigned char*)nbr_in_a_string) + 1;
+    len += 16;
+   
 
-
-
-    
-
-    return (0);   
+    return (status);   
 }
 
 
@@ -233,19 +247,44 @@ void ft_strcpy(char *str, char *dest) {
 
 void get_cmd (char *str, char *cmd, char *value) {
 
-    (void)str;
-    (void)cmd;
-    (void)value;
+    uint8_t index = 0;
+    uint8_t cmd_index = 0;
+    uint8_t value_index = 0;
         
+    while (str[index] != '\0') {
+
+        while (str && str[index] != ' ') {
+
+            cmd[cmd_index] = str[index];
+            cmd_index++;
+            index++;
+        }
+        cmd[cmd_index] = '\0';   
+        index++;
+        while (str && str[index]) {
+            value[value_index] = str[index];
+            value_index++;
+            index++;
+        }
+        value[value_index] = '\0';
+    }
+
+    // uart_printstr("\r\n");
+    // uart_printstr(cmd);
+    // uart_printstr(" ");
+    // uart_printstr(value);
+    // uart_printstr("\r\n");
+}
 
 
+void set_id (char *cmd_arg) {
 
-    
+    if (!Printable(cmd_arg[0]))
+        return;
+
     
 }
 
-char cmd[BUFFER] = {0};
-char value[BUFFER] = {8};
 
 
 int  main( void ) {
@@ -261,8 +300,8 @@ int  main( void ) {
     struct divice_config setup;
     setup.magic = 56535;
     setup.id = 42949;
-    setup.priority = -3;
-    ft_strcpy("01234567", setup.tag);
+    setup.priority = -126;
+    ft_strcpy("0123456789", setup.tag);
     setup.check = 22222;
     (void)setup;
     
@@ -305,31 +344,28 @@ int  main( void ) {
             }
             if (ft_strcmp((unsigned char*)formatted_input , (unsigned char*)"set_id")) {
                 uart_printstr("\r\nSET_ID called\r\n");
-                // eeprom_clear();
+                set_id(value);
                 resetPrompt(hexValue, hexAddress);
                 continue;
             }
 
             if (ft_strcmp((unsigned char*)cmd , (unsigned char*)"display")) {
-                uart_printstr("\r\nSET_ID called\r\n");
+                uart_printstr("\r\nDISPLAY called\r\n");
                 eeprom_dispay(0, nbrStr_to_dec(value), 0, 0);            
                 resetPrompt(hexValue, hexAddress);
                 continue;
             }
             if (check_input(formatted_input)) { 
-                uart_printstr("\r\n");
-
-                uart_printstr(formatted_input);
-
-
-                uart_printstr("\r\n");
+                // uart_printstr("\r\n");
+                // uart_printstr(formatted_input);
+                // uart_printstr("\r\n");
 
 
                 
                 epprom_write_flag = 1;
             } else {
 
-                uart_printstr(formatted_input);
+                // uart_printstr(formatted_input);
                 resetPrompt(hexValue, hexAddress);
             }           
         }
@@ -339,13 +375,17 @@ int  main( void ) {
 
             
 
-            eeprom_write_structure(SLOT3, &setup);
+            eeprom_write_structure(SLOT1, &setup);
 
             
-            if (status != 0) {uart_printstr("Corruption detected\n\r");}
             pause_in_milliseconds(500);
+
+            // uart_printstr("\n\r DEBUG status\r\n");
+           
+            putnbr_32t(status);    
+            if (status == WRITE_ERROR) {uart_printstr("Corruption detected\n\r");}
             uart_printstr("\r\n");
-            eeprom_dispay(0, 26, 0, 0);            
+            // eeprom_dispay(0, 26, 0, 0);            
             resetFlags();
             uart_printstr("\r\n");
         }
