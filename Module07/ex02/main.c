@@ -6,7 +6,7 @@
 /*   By: nrobinso <nrobinso@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/04/13 15:41:53 by nrobinso          #+#    #+#             */
-/*   Updated: 2026/04/30 17:44:35 by nrobinso         ###   ########.fr       */
+/*   Updated: 2026/04/30 18:11:09 by nrobinso         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -388,6 +388,24 @@ void get_status_prio(uint8_t slot) {
     }    
 }
 
+void get_status_tag(uint8_t slot) {
+
+    uint8_t start = slot + 64;
+    uint8_t stop = slot + 87;
+    unsigned char c;
+    uart_printstr("\r\ntag: ");
+    uart_printstr("\"");
+    while (start < stop) {
+        c = eeprom_read(start);
+        pause_in_milliseconds(20);
+        if (c == '\0')
+        break;
+    uart_tx(c);
+    start++;       
+    }    
+    uart_printstr("\"");
+}
+
 
 
 
@@ -400,9 +418,13 @@ void get_status (volatile char *cmd) {
 
     get_status_id(slot);
     get_status_prio(slot);
+    if (slot == 0 ) {uart_printstr("\r\nSlot: 1");};
+    // if (slot == 96 ) {uart_printstr("Slot: 2");};
+    // if (slot == 192 ) {uart_printstr("Slot: 3");};
+    // if (slot == 288 ) {uart_printstr("Slot: 4");};
+    get_status_tag(slot);
 
 }
-
 
 
 
