@@ -6,7 +6,7 @@
 /*   By: nrobinso <nrobinso@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/04/28 14:26:26 by nrobinso          #+#    #+#             */
-/*   Updated: 2026/04/30 12:08:14 by nrobinso         ###   ########.fr       */
+/*   Updated: 2026/04/30 13:56:37 by nrobinso         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -77,11 +77,6 @@ uint8_t eeprom_update(uint16_t address, unsigned char data) {
 
     c = eeprom_read(address);
     pause_in_milliseconds(50);
-        // uart_tx(' ');
-        // uart_tx(c);
-        // uart_tx('=');
-        // uart_tx(data);
-        // uart_tx(' ');
         
     if (c == data) {
         return (0);
@@ -89,31 +84,15 @@ uint8_t eeprom_update(uint16_t address, unsigned char data) {
         eeprom_write(address, data);
         pause_in_milliseconds(50);
         c = eeprom_read(address);
-
-        uart_printstr("\r\nDEBUG: ");
-        // putnbr_32t(address);
-        // uart_printstr("\r\nDEBUG: END\r\n");
-        // uart_tx(' ');
-        // uart_tx(c);
-        // uart_tx('=');
-        // uart_tx(data);
-        // uart_tx(' ');
-
-
         pause_in_milliseconds(50);
         if (c != data) { 
             status = WRITE_ERROR;
             return (0);
         }
-        
         return (1);
     }
     return (0);
 }
-
-
-
-
 
 
 

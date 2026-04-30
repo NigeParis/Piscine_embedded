@@ -6,7 +6,7 @@
 /*   By: nrobinso <nrobinso@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/04/17 13:51:57 by nrobinso          #+#    #+#             */
-/*   Updated: 2026/04/30 11:38:33 by nrobinso         ###   ########.fr       */
+/*   Updated: 2026/04/30 16:25:57 by nrobinso         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -478,7 +478,7 @@ void pause_in_milliseconds(uint16_t time_in_ms) {
 
 uint16_t nbrStr_to_dec(const char* nbrString) {
 
-    uint16_t result = 0;
+    uint32_t result = 0;
     uint8_t index = 0;
 
     while (nbrString && nbrString[index]) {
@@ -494,4 +494,108 @@ uint16_t nbrStr_to_dec(const char* nbrString) {
     }
 
     return result;
+}
+
+
+
+bool is_digit_str(volatile char* str) {
+
+    int i = 0;
+    while (str && str[i]) {
+
+        if(!is_digit(str[i]))
+            return (0);
+        i++;
+    }
+
+    return (1);
+    
+}
+
+
+
+/// NOTE: string dec in to decimal -> "09" -> 9
+/// ARGS: string to convert
+/// RETURNS: uint16_t value in decimal
+
+uint32_t nbrStr_to_dec_32t(const char* nbrString) {
+
+    uint64_t result = 0;
+    uint8_t index = 0;
+
+    if (ft_strlen((unsigned char*)nbrString) > 10)
+        return (0);
+
+    while (nbrString && nbrString[index]) {
+
+        if (nbrString[index] < '0' || nbrString[index] > '9') {
+            break;  // stop on non-digit
+        }
+
+        uint8_t digit = nbrString[index] - '0';
+        result = result * 10 + digit;
+        index++;
+        if (result > 4294967295)
+            return (uart_printstr("OVER SIZED NUMBER\r\n"), 0);
+    }
+
+    return result;
+}
+
+
+
+/// NOTE: string dec in to decimal -> "09" -> 9
+/// ARGS: string to convert
+/// RETURNS: uint16_t value in decimal
+
+int16_t nbrStr_to_dec_signed(const char* nbrString) {
+
+    int32_t result = 0;
+    uint8_t index = 0;
+    int8_t neg = 1;
+
+    if (nbrString[0] == '-') {
+        uart_printstr("neg flag called");
+        neg = -1;
+        index++;
+    }
+    while (nbrString && nbrString[index]) {
+
+        if (nbrString[index] < '0' || nbrString[index] > '9') {
+            break;  // stop on non-digit
+        }
+
+        uint8_t digit = nbrString[index] - '0';
+        result = result * 10 + digit;
+        index++;
+        // if (result > 32768)
+        //     return (uart_printstr("OVER SIZED NUMBER\r\n"), 0);
+        
+    }
+    uart_printstr("\r\n result: ");
+    putnbr_32t(result);
+    return (result * neg);
+}
+
+
+
+
+void putnbr_32t_un(uint32_t nbr) {
+    char    buf[10];        // max 10 digits for uint32_t (fits in registers/stack once)
+    uint8_t i = 0;
+
+    if (nbr == 0) {
+        uart_tx('0');
+        return;
+    }
+
+    while (nbr > 0) {
+        buf[i++] = (nbr % 10) + '0';
+        nbr /= 10;
+    }
+
+    // digits are stored in reverse, print backwards
+    while (i--) {
+        uart_tx(buf[i]);
+    }
 }

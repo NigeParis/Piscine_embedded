@@ -6,7 +6,7 @@
 /*   By: nrobinso <nrobinso@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/04/13 15:41:53 by nrobinso          #+#    #+#             */
-/*   Updated: 2026/04/25 14:39:47 by nrobinso         ###   ########.fr       */
+/*   Updated: 2026/04/30 15:13:45 by nrobinso         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -62,7 +62,7 @@ int main(void) {
         
         adc_getReading(adc_select_temp_sensor_interne);         // get reading raw
         buffer = adc_10_bit_rx();                               // transfer to buffer
-        nbr_to_str((buffer - 353) * 100 / 122);                 // T = { [(ADCH << 8) | ADCL] - TOS} / k calculation - page 257
+        nbr_to_str((buffer - 323) * 100 / 122);                 // T = { [(ADCH << 8) | ADCL] - TOS} / k calculation - page 257
         ft_transfer(nbr_in_a_string, temp_reading);             // add result to reading variable
 
         _delay_ms(20);
@@ -70,6 +70,7 @@ int main(void) {
         uart_printstr(temp_reading);                            // output reading
         uart_printstr("ºC");
         uart_printstr("\r\n");
+        _delay_ms(500);
     }
 }
     
