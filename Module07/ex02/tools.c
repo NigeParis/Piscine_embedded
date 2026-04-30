@@ -6,7 +6,7 @@
 /*   By: nrobinso <nrobinso@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/04/17 13:51:57 by nrobinso          #+#    #+#             */
-/*   Updated: 2026/04/30 16:25:57 by nrobinso         ###   ########.fr       */
+/*   Updated: 2026/04/30 17:08:51 by nrobinso         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -548,52 +548,52 @@ uint32_t nbrStr_to_dec_32t(const char* nbrString) {
 /// ARGS: string to convert
 /// RETURNS: uint16_t value in decimal
 
-int16_t nbrStr_to_dec_signed(const char* nbrString) {
-
+int16_t nbrStr_to_dec_signed(const char *nbrString)
+{
     int32_t result = 0;
-    uint8_t index = 0;
-    int8_t neg = 1;
+    uint8_t index  = 0;
+    int8_t  neg    = 1;
+
+    if (!nbrString || nbrString[0] == '\0')
+        return 0;
 
     if (nbrString[0] == '-') {
-        uart_printstr("neg flag called");
         neg = -1;
         index++;
     }
-    while (nbrString && nbrString[index]) {
 
-        if (nbrString[index] < '0' || nbrString[index] > '9') {
-            break;  // stop on non-digit
-        }
+    while (nbrString[index]) {
+        if (nbrString[index] < '0' || nbrString[index] > '9')
+            break;
 
-        uint8_t digit = nbrString[index] - '0';
-        result = result * 10 + digit;
+        result = result * 10 + (nbrString[index] - '0');
+
+        if (neg == 1  && result >  32767) { uart_printstr(" OVERFLOW\r\n"); return  32767; }
+        if (neg == -1 && result >  32768) { uart_printstr(" OVERFLOW\r\n"); return -32768; }
+
         index++;
-        // if (result > 32768)
-        //     return (uart_printstr("OVER SIZED NUMBER\r\n"), 0);
-        
     }
-    uart_printstr("\r\n result: ");
-    putnbr_32t(result);
-    return (result * neg);
+
+    return (int16_t)(result * neg);
 }
 
 
-
-
-void putnbr_32t_un(uint32_t nbr) {
+void putnbr_32t_signed(int16_t nbr) {
     char    buf[10];        // max 10 digits for uint32_t (fits in registers/stack once)
-    uint8_t i = 0;
+    volatile uint8_t i = 0;
+    int neg = 0;
 
-    if (nbr == 0) {
-        uart_tx('0');
-        return;
+    if (nbr < 0) {
+        nbr *= -1;
+        neg = 1;
     }
 
     while (nbr > 0) {
         buf[i++] = (nbr % 10) + '0';
         nbr /= 10;
     }
-
+    if (neg == 1)
+        buf[i++] = '-';
     // digits are stored in reverse, print backwards
     while (i--) {
         uart_tx(buf[i]);

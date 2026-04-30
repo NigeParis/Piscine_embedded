@@ -6,7 +6,7 @@
 /*   By: nrobinso <nrobinso@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/04/17 13:56:57 by nrobinso          #+#    #+#             */
-/*   Updated: 2026/04/30 16:15:45 by nrobinso         ###   ########.fr       */
+/*   Updated: 2026/04/30 16:43:50 by nrobinso         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -48,6 +48,6 @@
     bool is_digit_str(volatile char* str);
     uint32_t nbrStr_to_dec_32t(const char* nbrString);
     int16_t nbrStr_to_dec_signed(const char* nbrString);
-
+    void putnbr_32t_signed(int16_t nbr);
 
 #endif 

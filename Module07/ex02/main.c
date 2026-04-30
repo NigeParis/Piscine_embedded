@@ -6,7 +6,7 @@
 /*   By: nrobinso <nrobinso@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/04/13 15:41:53 by nrobinso          #+#    #+#             */
-/*   Updated: 2026/04/30 16:18:29 by nrobinso         ###   ########.fr       */
+/*   Updated: 2026/04/30 17:01:04 by nrobinso         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -306,7 +306,10 @@ void set_prio (volatile char *cmd_arg) {
         return;
 
     nbr = nbrStr_to_dec_signed((char*)cmd_arg);
-    if (nbr > -32768 && nbr <= 32767) {
+    uart_printstr("\r\n CALLED putnbr cmd: ");
+    putnbr_32t_signed(nbr);
+    uart_printstr("\r\n");
+    if (nbr > -32768 && nbr < 32767) {
         uart_printstr("\r\n CALLED set_prio cmd: ");
         uart_printstr(cmd_arg);
         eeprom_write_str(slot + 48, cmd_arg, 16);
