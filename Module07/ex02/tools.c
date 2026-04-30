@@ -6,7 +6,7 @@
 /*   By: nrobinso <nrobinso@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/04/17 13:51:57 by nrobinso          #+#    #+#             */
-/*   Updated: 2026/04/30 17:08:51 by nrobinso         ###   ########.fr       */
+/*   Updated: 2026/04/30 17:28:58 by nrobinso         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -62,6 +62,7 @@ bool notPrintable(unsigned char c) {
     if (c < ' ' || c > '~')
         return (1);
     return (0);
+    
 }
 
 
@@ -568,8 +569,8 @@ int16_t nbrStr_to_dec_signed(const char *nbrString)
 
         result = result * 10 + (nbrString[index] - '0');
 
-        if (neg == 1  && result >  32767) { uart_printstr(" OVERFLOW\r\n"); return  32767; }
-        if (neg == -1 && result >  32768) { uart_printstr(" OVERFLOW\r\n"); return -32768; }
+        if (neg == 1  && result >  32767) {return  32767; }
+        if (neg == -1 && result >  32768) {return -32768; }
 
         index++;
     }

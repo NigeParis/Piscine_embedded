@@ -6,7 +6,7 @@
 /*   By: nrobinso <nrobinso@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/04/13 15:41:53 by nrobinso          #+#    #+#             */
-/*   Updated: 2026/04/30 17:01:04 by nrobinso         ###   ########.fr       */
+/*   Updated: 2026/04/30 17:44:35 by nrobinso         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -293,7 +293,7 @@ void set_id (volatile char *cmd_arg) {
     uart_printstr(cmd_arg);
     eeprom_write_str(slot + 16, cmd_arg, 32);
     } else {
-        return (uart_printstr("\r\n too big number"));        
+        return (uart_printstr("\r\nError: number overflow"));        
     }
 }
 
@@ -306,22 +306,48 @@ void set_prio (volatile char *cmd_arg) {
         return;
 
     nbr = nbrStr_to_dec_signed((char*)cmd_arg);
-    uart_printstr("\r\n CALLED putnbr cmd: ");
-    putnbr_32t_signed(nbr);
-    uart_printstr("\r\n");
+    // uart_printstr("\r\n CALLED putnbr cmd: ");
+    // putnbr_32t_signed(nbr);
+    // uart_printstr("\r\n");
     if (nbr > -32768 && nbr < 32767) {
         uart_printstr("\r\n CALLED set_prio cmd: ");
         uart_printstr(cmd_arg);
         eeprom_write_str(slot + 48, cmd_arg, 16);
     } else {
-        return (uart_printstr("\r\n error number"));        
+        return (uart_printstr("\r\nError: number overflow"));        
     }
 }
+
+bool isalfa(volatile char c) {
+
+    if (c < 'a' && c > 'z')
+        return (0);
+    return(1);
+}
+
+
+bool is_alfanum_str(volatile char* str) {
+
+    int i = 0;
+    while (str && str[i]) {
+
+        if (str[i] == '_')
+            i++;
+        if ((str[i] < '0' || str[i] > '9') && (str[i] < 'a' || str[i] > 'z' )) 
+            return (0);
+        i++;
+    }
+    return(1);
+}
+
+
 
 void set_tag (volatile char *cmd_arg) {
 
     if (!Printable(cmd_arg[0]))
         return;
+    if (!is_alfanum_str(cmd_arg)) 
+        return(uart_printstr("\r\nError: not alphanum or _")) ;
     uart_printstr("\r\n CALLED set_tag cmd: ");
     uart_printstr(cmd_arg);
     eeprom_write_str(slot + 64, cmd_arg, 33);
