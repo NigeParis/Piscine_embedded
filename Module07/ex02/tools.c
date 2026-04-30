@@ -6,7 +6,7 @@
 /*   By: nrobinso <nrobinso@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/04/17 13:51:57 by nrobinso          #+#    #+#             */
-/*   Updated: 2026/04/30 17:28:58 by nrobinso         ###   ########.fr       */
+/*   Updated: 2026/04/30 19:25:34 by nrobinso         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -71,7 +71,7 @@ bool Printable(unsigned char c) {
         return (0);
     if (c < ' ' || c > '~')
         return (0);
-    return (1);
+    return(1);
 }
 
 
